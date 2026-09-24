@@ -18,6 +18,6 @@
     "declaration": false,
     "sourceMap": true
   },
-  "include": ["bin", "src/core", "src/infrastructure", "src/hook", "src/installer", "src/domain", "src/shared", "scripts", "test"],
+  "include": ["bin", "src/infrastructure", "src/hook", "src/installer", "src/domain", "src/shared", "scripts", "test"],
   "exclude": ["node_modules", "dist", "src/client"]
 }

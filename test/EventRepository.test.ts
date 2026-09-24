@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { EventRepository } from "../src/infrastructure/EventRepository.js";
-import type { EventLineRecord } from "../src/core/EventLineRecord.js";
+import type { EventLineRecord } from "../src/domain/events/EventLineRecord.js";
 
 function sampleRecord(): EventLineRecord {
   return {
