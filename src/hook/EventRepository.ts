@@ -1,7 +1,7 @@
 import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { getEventsFilePath } from "../shared/paths.js";
-import type { EventLineRecord } from "./EventParser.types.js";
+import type { EventLineRecord } from "../shared/EventLineRecord.js";
 
 export class EventRepository {
   private readonly filePath: string;

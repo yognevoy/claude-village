@@ -1,5 +1,5 @@
 import { EventPayload } from "./EventPayload.js";
-import type { EventLineRecord } from "./EventParser.types.js";
+import type { EventLineRecord } from "../shared/EventLineRecord.js";
 import { ClaudeEvent } from "../shared/ClaudeEvent.js";
 
 export class EventParser {
