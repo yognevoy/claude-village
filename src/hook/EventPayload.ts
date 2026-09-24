@@ -1,17 +1,6 @@
-export class EventPayload {
-  private static readonly KNOWN_EVENTS = new Set([
-    "SessionStart",
-    "UserPromptSubmit",
-    "PreToolUse",
-    "PermissionRequest",
-    "PostToolUse",
-    "Notification",
-    "Stop",
-    "SubagentStart",
-    "SubagentStop",
-    "SessionEnd",
-  ]);
+import { isClaudeEvent } from "../shared/ClaudeEvent.js";
 
+export class EventPayload {
   private constructor(
     public readonly event: string,
     public readonly sessionId: string,
@@ -31,12 +20,7 @@ export class EventPayload {
     const sessionId = p.session_id;
     const cwd = p.cwd;
 
-    if (
-      typeof event !== "string" ||
-      typeof sessionId !== "string" ||
-      typeof cwd !== "string" ||
-      !this.KNOWN_EVENTS.has(event)
-    ) {
+    if (!isClaudeEvent(event) || typeof sessionId !== "string" || typeof cwd !== "string") {
       return null;
     }
 

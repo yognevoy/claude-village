@@ -1,5 +1,6 @@
 import { EventPayload } from "./EventPayload.js";
 import type { EventLineRecord } from "./EventParser.types.js";
+import { ClaudeEvent } from "../shared/ClaudeEvent.js";
 
 export class EventParser {
   public parse(rawPayload: unknown, timestamp: number): EventLineRecord | null {
@@ -15,7 +16,7 @@ export class EventParser {
       cwd: payload.cwd,
       toolName: payload.toolName,
       agentId: payload.agentId,
-      ...(payload.event === "Notification" && { notificationType: payload.notificationType }),
+      ...(payload.event === ClaudeEvent.Notification && { notificationType: payload.notificationType }),
     };
   }
 }
