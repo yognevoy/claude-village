@@ -6,12 +6,14 @@ import { join } from "node:path";
 import { request, type Server } from "node:http";
 import { createHttpServer } from "../src/server/http-server.js";
 
-function requestWithHost(port: number, path: string, hostHeader: string): Promise<number> {
+const TEST_PORT = 58217;
+
+function requestWithHost(path: string, hostHeader: string): Promise<number> {
   return new Promise((resolve, reject) => {
     const req = request(
       {
         host: "127.0.0.1",
-        port,
+        port: TEST_PORT,
         path,
         method: "GET",
         headers: { Host: hostHeader },
@@ -26,15 +28,11 @@ function requestWithHost(port: number, path: string, hostHeader: string): Promis
   });
 }
 
-async function startServer(): Promise<{ server: Server; port: number; staticDir: string }> {
+async function startServer(): Promise<{ server: Server; staticDir: string }> {
   const staticDir = mkdtempSync(join(tmpdir(), "claude-village-test-"));
-  const server = createHttpServer({ port: 0, staticDir });
+  const server = createHttpServer({ port: TEST_PORT, staticDir });
   await new Promise<void>((resolve) => server.once("listening", resolve));
-  const address = server.address();
-  if (address === null || typeof address === "string") {
-    throw new Error("expected server to bind to a numeric port");
-  }
-  return { server, port: address.port, staticDir };
+  return { server, staticDir };
 }
 
 function stopServer(server: Server): Promise<void> {
@@ -44,10 +42,10 @@ function stopServer(server: Server): Promise<void> {
 }
 
 test("GET /healthz returns 200 with a valid Host", async () => {
-  const { server, port, staticDir } = await startServer();
+  const { server, staticDir } = await startServer();
   try {
-    const res = await fetch(`http://127.0.0.1:${port}/healthz`, {
-      headers: { Host: `127.0.0.1:${port}` },
+    const res = await fetch(`http://127.0.0.1:${TEST_PORT}/healthz`, {
+      headers: { Host: `127.0.0.1:${TEST_PORT}` },
     });
     assert.equal(res.status, 200);
     const body = await res.json();
@@ -59,9 +57,9 @@ test("GET /healthz returns 200 with a valid Host", async () => {
 });
 
 test("GET /healthz returns 403 with a foreign Host (DNS rebinding protection)", async () => {
-  const { server, port, staticDir } = await startServer();
+  const { server, staticDir } = await startServer();
   try {
-    const status = await requestWithHost(port, "/healthz", "evil.example.com");
+    const status = await requestWithHost("/healthz", "evil.example.com");
     assert.equal(status, 403);
   } finally {
     await stopServer(server);
@@ -70,10 +68,10 @@ test("GET /healthz returns 403 with a foreign Host (DNS rebinding protection)", 
 });
 
 test("unknown route returns 404", async () => {
-  const { server, port, staticDir } = await startServer();
+  const { server, staticDir } = await startServer();
   try {
-    const res = await fetch(`http://127.0.0.1:${port}/does-not-exist`, {
-      headers: { Host: `127.0.0.1:${port}` },
+    const res = await fetch(`http://127.0.0.1:${TEST_PORT}/does-not-exist`, {
+      headers: { Host: `127.0.0.1:${TEST_PORT}` },
     });
     assert.equal(res.status, 404);
   } finally {
