@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { parseArgs } from "node:util";
+import { Command } from "commander";
 import { createHttpServer } from "../src/server/http-server.js";
 import { DEFAULT_CONFIG, DEFAULT_HOST } from "../src/shared/config.js";
 import { texts } from "../src/shared/texts.js";
@@ -9,24 +9,16 @@ import { texts } from "../src/shared/texts.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const { positionals, values } = parseArgs({
-  args: process.argv.slice(2),
-  allowPositionals: true,
-  options: {
-    port: { type: "string" },
-  },
-});
-
-function resolvePort(): number {
-  if (!values.port) {
+function resolvePort(raw: string | undefined): number {
+  if (!raw) {
     return DEFAULT_CONFIG.port;
   }
-  const parsed = Number.parseInt(values.port, 10);
+  const parsed = Number.parseInt(raw, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_CONFIG.port;
 }
 
-function runStart(): void {
-  const port = resolvePort();
+function runStart(options: { port?: string }): void {
+  const port = resolvePort(options.port);
   const staticDir = join(__dirname, "..", "client");
   createHttpServer({ port, host: DEFAULT_HOST, staticDir });
   console.log(texts.cli.serverStarted(`http://${DEFAULT_HOST}:${port}`));
@@ -40,23 +32,26 @@ function runUninstall(): void {
   console.log(texts.cli.notImplemented("uninstall"));
 }
 
-function printUsage(): void {
-  console.log(texts.cli.usage);
-}
+const program = new Command();
 
-const command = positionals[0];
+program
+  .name("claude-village")
+  .description(texts.cli.description);
 
-switch (command) {
-  case "start":
-    runStart();
-    break;
-  case "install":
-    runInstall();
-    break;
-  case "uninstall":
-    runUninstall();
-    break;
-  default:
-    printUsage();
-    break;
-}
+program
+  .command("start")
+  .description(texts.cli.startDescription)
+  .option("--port <number>", texts.cli.portOptionDescription)
+  .action(runStart);
+
+program
+  .command("install")
+  .description(texts.cli.installDescription)
+  .action(runInstall);
+
+program
+  .command("uninstall")
+  .description(texts.cli.uninstallDescription)
+  .action(runUninstall);
+
+program.parse(process.argv);
