@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { EventParser } from "../src/hook/EventParser.js";
+import { EventParser } from "../src/core/EventParser.js";
 
 test("parses a minimal record for PostToolUse", () => {
   const parser = new EventParser();

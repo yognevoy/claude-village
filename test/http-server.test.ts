@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { request, type Server } from "node:http";
-import { createHttpServer } from "../src/server/http-server.js";
+import { createHttpServer } from "../src/infrastructure/server/http-server.js";
 
 const TEST_PORT = 58217;
 

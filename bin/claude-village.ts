@@ -2,7 +2,7 @@
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { Command } from "commander";
-import { createHttpServer } from "../src/server/http-server.js";
+import { createHttpServer } from "../src/infrastructure/server/http-server.js";
 import { DEFAULT_CONFIG, DEFAULT_HOST } from "../src/shared/config.js";
 import { texts } from "../src/shared/texts.js";
 

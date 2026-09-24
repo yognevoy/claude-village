@@ -1,6 +1,6 @@
 import { EventPayload } from "./EventPayload.js";
-import type { EventLineRecord } from "../shared/EventLineRecord.js";
-import { ClaudeEvent } from "../shared/ClaudeEvent.js";
+import type { EventLineRecord } from "./EventLineRecord.js";
+import { ClaudeEvent } from "./ClaudeEvent.js";
 
 export class EventParser {
   public parse(rawPayload: unknown, timestamp: number): EventLineRecord | null {

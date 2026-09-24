@@ -1,6 +1,6 @@
 import express, { type Express, type Request, type Response } from "express";
 import type { Server } from "node:http";
-import { DEFAULT_HOST } from "../shared/config.js";
+import { DEFAULT_HOST } from "../../shared/config.js";
 import { createHostGuard } from "./middleware/host-guard.js";
 
 export interface HttpServerOptions {

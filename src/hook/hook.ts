@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { EventParser } from "./EventParser.js";
-import { EventRepository } from "./EventRepository.js";
+import { EventParser } from "../core/EventParser.js";
+import { EventRepository } from "../infrastructure/EventRepository.js";
 import { EventCollector } from "./EventCollector.js";
 
 const parser = new EventParser();

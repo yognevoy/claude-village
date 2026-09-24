@@ -1,4 +1,4 @@
-import { isClaudeEvent } from "../shared/ClaudeEvent.js";
+import { isClaudeEvent } from "./ClaudeEvent.js";
 
 export class EventPayload {
   private constructor(
