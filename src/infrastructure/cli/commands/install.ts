@@ -11,12 +11,8 @@ export function createInstallCommand(hookPath: string): Command {
     .action(() => {
       const installer = new Installer(new ClaudeSettingsRepository(getClaudeSettingsPath()), hookPath);
       try {
-        const plan = installer.install();
-        if (plan.every((item) => item.action === "keep")) {
-          console.log(texts.cli.installNoChanges());
-        } else {
-          console.log(texts.cli.installApplied(getClaudeSettingsPath()));
-        }
+        const changed = installer.install();
+        console.log(changed ? texts.cli.installApplied(getClaudeSettingsPath()) : texts.cli.installNoChanges());
       } catch (error) {
         if (error instanceof InvalidSettingsError) {
           console.log(texts.cli.invalidSettingsJson(error.settingsPath));

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ClaudeSettingsRepository, type SettingsJson } from "../src/infrastructure/repository/ClaudeSettingsRepository.js";
@@ -21,7 +21,7 @@ test("install adds a command entry for every ClaudeEvent to a fresh settings fil
   const settingsPath = join(dir, "settings.json");
   try {
     const installer = new Installer(new ClaudeSettingsRepository(settingsPath), "/abs/hook.js");
-    installer.install();
+    assert.equal(installer.install(), true);
 
     const settings = readSettings(settingsPath);
     const hooks = settings.hooks as Record<string, unknown[]>;
@@ -61,14 +61,14 @@ test("install preserves foreign hooks on the same event and other settings keys"
   }
 });
 
-test("install is idempotent: running twice produces identical settings", () => {
+test("install is idempotent: running twice produces identical settings and reports no change", () => {
   const dir = tempDir();
   const settingsPath = join(dir, "settings.json");
   try {
     const installer = new Installer(new ClaudeSettingsRepository(settingsPath), "/abs/hook.js");
     installer.install();
     const firstRun = readFileSync(settingsPath, "utf-8");
-    installer.install();
+    assert.equal(installer.install(), false);
     const secondRun = readFileSync(settingsPath, "utf-8");
     assert.equal(firstRun, secondRun);
   } finally {
@@ -92,15 +92,14 @@ test("install does not write a backup on the second, no-op run", () => {
   }
 });
 
-test("install reports and applies an update when the hook path changes", () => {
+test("install applies an update when the hook path changes", () => {
   const dir = tempDir();
   const settingsPath = join(dir, "settings.json");
   try {
     new Installer(new ClaudeSettingsRepository(settingsPath), "/old/hook.js").install();
-    const plan = new Installer(new ClaudeSettingsRepository(settingsPath), "/new/hook.js").plan();
-    assert.ok(plan.every((item) => item.action === "update"));
+    const changed = new Installer(new ClaudeSettingsRepository(settingsPath), "/new/hook.js").install();
+    assert.equal(changed, true);
 
-    new Installer(new ClaudeSettingsRepository(settingsPath), "/new/hook.js").install();
     const settings = readSettings(settingsPath);
     const groups = (settings.hooks as Record<string, unknown[]>)[ClaudeEvent.Stop] as Array<{
       hooks: Array<{ args: string[] }>;
@@ -125,19 +124,6 @@ test("install with invalid JSON leaves the file untouched and throws", () => {
   }
 });
 
-test("plan reports add for a fresh settings file without writing anything", () => {
-  const dir = tempDir();
-  const settingsPath = join(dir, "settings.json");
-  try {
-    const installer = new Installer(new ClaudeSettingsRepository(settingsPath), "/abs/hook.js");
-    const plan = installer.plan();
-    assert.ok(plan.every((item) => item.action === "add"));
-    assert.equal(existsSync(settingsPath), false);
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
 test("uninstall removes every own entry while keeping foreign hooks", () => {
   const dir = tempDir();
   const settingsPath = join(dir, "settings.json");
@@ -152,8 +138,7 @@ test("uninstall removes every own entry while keeping foreign hooks", () => {
   try {
     const installer = new Installer(new ClaudeSettingsRepository(settingsPath), "/abs/hook.js");
     installer.install();
-    const affected = installer.uninstall();
-    assert.equal(affected.length, Object.values(ClaudeEvent).length);
+    assert.equal(installer.uninstall(), true);
 
     const settings = readSettings(settingsPath);
     const raw = JSON.stringify(settings.hooks);
@@ -174,8 +159,7 @@ test("uninstall on a file with nothing installed is a no-op", () => {
   writeFileSync(settingsPath, JSON.stringify({ theme: "dark" }));
   try {
     const installer = new Installer(new ClaudeSettingsRepository(settingsPath), "/abs/hook.js");
-    const affected = installer.uninstall();
-    assert.deepEqual(affected, []);
+    assert.equal(installer.uninstall(), false);
     assert.deepEqual(readSettings(settingsPath), { theme: "dark" });
   } finally {
     rmSync(dir, { recursive: true, force: true });

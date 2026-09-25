@@ -11,12 +11,8 @@ export function createUninstallCommand(hookPath: string): Command {
     .action(() => {
       const installer = new Installer(new ClaudeSettingsRepository(getClaudeSettingsPath()), hookPath);
       try {
-        const affected = installer.uninstall();
-        if (affected.length === 0) {
-          console.log(texts.cli.uninstallNothingToRemove());
-        } else {
-          console.log(texts.cli.uninstallRemoved(getClaudeSettingsPath()));
-        }
+        const changed = installer.uninstall();
+        console.log(changed ? texts.cli.uninstallRemoved(getClaudeSettingsPath()) : texts.cli.uninstallNothingToRemove());
       } catch (error) {
         if (error instanceof InvalidSettingsError) {
           console.log(texts.cli.invalidSettingsJson(error.settingsPath));
