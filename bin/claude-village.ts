@@ -3,11 +3,16 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { Command } from "commander";
 import { createHttpServer } from "../src/infrastructure/server/http-server.js";
+import { ClaudeSettingsRepository } from "../src/installer/ClaudeSettingsRepository.js";
+import { Installer } from "../src/installer/Installer.js";
+import { InvalidSettingsError } from "../src/installer/InvalidSettingsError.js";
 import { DEFAULT_CONFIG, DEFAULT_HOST } from "../src/shared/config.js";
+import { getClaudeSettingsPath } from "../src/shared/paths.js";
 import { texts } from "../src/shared/texts.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const hookPath = join(__dirname, "..", "src", "hook", "hook.js");
 
 function resolvePort(raw: string | undefined): number {
   if (!raw) {
@@ -24,12 +29,53 @@ function runStart(options: { port?: string }): void {
   console.log(texts.cli.serverStarted(`http://${DEFAULT_HOST}:${port}`));
 }
 
-function runInstall(): void {
-  console.log(texts.cli.notImplemented("install"));
+function createInstaller(): Installer {
+  const repository = new ClaudeSettingsRepository(getClaudeSettingsPath());
+  return new Installer(repository, hookPath);
+}
+
+function runInstall(options: { dryRun?: boolean }): void {
+  const installer = createInstaller();
+  try {
+    if (options.dryRun) {
+      for (const item of installer.plan()) {
+        console.log(texts.cli.installPlanLine(item.event, item.action));
+      }
+      return;
+    }
+    const plan = installer.install();
+    if (plan.every((item) => item.action === "keep")) {
+      console.log(texts.cli.installNoChanges());
+    } else {
+      console.log(texts.cli.installApplied(getClaudeSettingsPath()));
+    }
+  } catch (error) {
+    if (error instanceof InvalidSettingsError) {
+      console.log(texts.cli.invalidSettingsJson(error.settingsPath));
+      process.exitCode = 1;
+      return;
+    }
+    throw error;
+  }
 }
 
 function runUninstall(): void {
-  console.log(texts.cli.notImplemented("uninstall"));
+  const installer = createInstaller();
+  try {
+    const affected = installer.uninstall();
+    if (affected.length === 0) {
+      console.log(texts.cli.uninstallNothingToRemove());
+    } else {
+      console.log(texts.cli.uninstallRemoved(getClaudeSettingsPath()));
+    }
+  } catch (error) {
+    if (error instanceof InvalidSettingsError) {
+      console.log(texts.cli.invalidSettingsJson(error.settingsPath));
+      process.exitCode = 1;
+      return;
+    }
+    throw error;
+  }
 }
 
 const program = new Command();
@@ -47,6 +93,7 @@ program
 program
   .command("install")
   .description(texts.cli.installDescription)
+  .option("--dry-run", texts.cli.installDryRunOptionDescription)
   .action(runInstall);
 
 program

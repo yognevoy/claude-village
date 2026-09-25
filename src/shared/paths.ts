@@ -16,3 +16,11 @@ export function getStateFilePath(): string {
 export function getConfigFilePath(): string {
   return join(getDataDir(), "config.json");
 }
+
+export function getClaudeSettingsDir(): string {
+  return join(homedir(), ".claude");
+}
+
+export function getClaudeSettingsPath(): string {
+  return join(getClaudeSettingsDir(), "settings.json");
+}
