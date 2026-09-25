@@ -9,10 +9,16 @@ export function createInstallCommand(hookPath: string): Command {
   return new Command("install")
     .description(texts.cli.installDescription)
     .action(() => {
-      const installer = new Installer(new ClaudeSettingsRepository(getClaudeSettingsPath()), hookPath);
+      const settingsPath = getClaudeSettingsPath();
+      const repository = new ClaudeSettingsRepository(settingsPath);
+      const installer = new Installer(repository, hookPath);
       try {
         const changed = installer.install();
-        console.log(changed ? texts.cli.installApplied(getClaudeSettingsPath()) : texts.cli.installNoChanges());
+        if (changed) {
+          console.log(texts.cli.installApplied(settingsPath));
+        } else {
+          console.log(texts.cli.installNoChanges());
+        }
       } catch (error) {
         if (error instanceof InvalidSettingsError) {
           console.log(texts.cli.invalidSettingsJson(error.settingsPath));
