@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ClaudeSettingsRepository, type SettingsJson } from "../src/installer/ClaudeSettingsRepository.js";
+import { ClaudeSettingsRepository, type SettingsJson } from "../src/infrastructure/repository/ClaudeSettingsRepository.js";
 import { Installer } from "../src/installer/Installer.js";
 import { InvalidSettingsError } from "../src/installer/InvalidSettingsError.js";
 import { ClaudeEvent } from "../src/domain/events/ClaudeEvent.js";

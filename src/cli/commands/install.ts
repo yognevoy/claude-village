@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { ClaudeSettingsRepository } from "../../installer/ClaudeSettingsRepository.js";
+import { ClaudeSettingsRepository } from "../../infrastructure/repository/ClaudeSettingsRepository.js";
 import { Installer } from "../../installer/Installer.js";
 import { InvalidSettingsError } from "../../installer/InvalidSettingsError.js";
 import { getClaudeSettingsPath } from "../../shared/paths.js";

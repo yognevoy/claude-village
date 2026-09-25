@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { EventParser } from "../domain/events/EventParser.js";
-import { EventRepository } from "../infrastructure/EventRepository.js";
+import { EventRepository } from "../infrastructure/repository/EventRepository.js";
 
 export class EventCollector {
   constructor(

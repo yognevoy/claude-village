@@ -1,5 +1,5 @@
 import { ClaudeEvent } from "../domain/events/ClaudeEvent.js";
-import { ClaudeSettingsRepository, type SettingsJson } from "./ClaudeSettingsRepository.js";
+import { ClaudeSettingsRepository, type SettingsJson } from "../infrastructure/repository/ClaudeSettingsRepository.js";
 import { HookCommandEntry } from "./HookCommandEntry.js";
 
 export type InstallAction = "add" | "update" | "keep";
