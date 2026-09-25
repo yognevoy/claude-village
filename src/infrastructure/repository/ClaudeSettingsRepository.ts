@@ -1,6 +1,6 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-import { InvalidSettingsError } from "../../installer/InvalidSettingsError.js";
+import { InvalidSettingsError } from "../../domain/installer/InvalidSettingsError.js";
 
 export type SettingsJson = Record<string, unknown>;
 

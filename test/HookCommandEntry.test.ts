@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { HookCommandEntry } from "../src/installer/HookCommandEntry.js";
+import { HookCommandEntry } from "../src/domain/installer/HookCommandEntry.js";
 
 test("toJSON produces a command entry with the marker as the second arg", () => {
   const entry = new HookCommandEntry("/abs/path/hook.js");

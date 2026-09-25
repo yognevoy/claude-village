@@ -4,8 +4,8 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSy
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ClaudeSettingsRepository, type SettingsJson } from "../src/infrastructure/repository/ClaudeSettingsRepository.js";
-import { Installer } from "../src/installer/Installer.js";
-import { InvalidSettingsError } from "../src/installer/InvalidSettingsError.js";
+import { Installer } from "../src/domain/installer/Installer.js";
+import { InvalidSettingsError } from "../src/domain/installer/InvalidSettingsError.js";
 import { ClaudeEvent } from "../src/domain/events/ClaudeEvent.js";
 
 function tempDir(): string {

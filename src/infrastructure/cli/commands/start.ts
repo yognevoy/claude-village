@@ -1,7 +1,7 @@
 import { Command } from "commander";
-import { createHttpServer } from "../../infrastructure/server/http-server.js";
-import { DEFAULT_CONFIG, DEFAULT_HOST } from "../../shared/config.js";
-import { texts } from "../../shared/texts.js";
+import { createHttpServer } from "../../server/http-server.js";
+import { DEFAULT_CONFIG, DEFAULT_HOST } from "../../../shared/config.js";
+import { texts } from "../../../shared/texts.js";
 
 function resolvePort(raw: string | undefined): number {
   if (!raw) {

@@ -1,9 +1,9 @@
 import { Command } from "commander";
-import { ClaudeSettingsRepository } from "../../infrastructure/repository/ClaudeSettingsRepository.js";
-import { Installer } from "../../installer/Installer.js";
-import { InvalidSettingsError } from "../../installer/InvalidSettingsError.js";
-import { getClaudeSettingsPath } from "../../shared/paths.js";
-import { texts } from "../../shared/texts.js";
+import { ClaudeSettingsRepository } from "../../repository/ClaudeSettingsRepository.js";
+import { Installer } from "../../../domain/installer/Installer.js";
+import { InvalidSettingsError } from "../../../domain/installer/InvalidSettingsError.js";
+import { getClaudeSettingsPath } from "../../../shared/paths.js";
+import { texts } from "../../../shared/texts.js";
 
 export function createUninstallCommand(hookPath: string): Command {
   return new Command("uninstall")

@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSy
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ClaudeSettingsRepository } from "../src/infrastructure/repository/ClaudeSettingsRepository.js";
-import { InvalidSettingsError } from "../src/installer/InvalidSettingsError.js";
+import { InvalidSettingsError } from "../src/domain/installer/InvalidSettingsError.js";
 
 function tempDir(): string {
   return mkdtempSync(join(tmpdir(), "claude-village-settings-test-"));

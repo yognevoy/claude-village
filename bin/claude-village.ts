@@ -2,9 +2,9 @@
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { Command } from "commander";
-import { createInstallCommand } from "../src/cli/commands/install.js";
-import { createStartCommand } from "../src/cli/commands/start.js";
-import { createUninstallCommand } from "../src/cli/commands/uninstall.js";
+import { createInstallCommand } from "../src/infrastructure/cli/commands/install.js";
+import { createStartCommand } from "../src/infrastructure/cli/commands/start.js";
+import { createUninstallCommand } from "../src/infrastructure/cli/commands/uninstall.js";
 import { texts } from "../src/shared/texts.js";
 
 const __filename = fileURLToPath(import.meta.url);
