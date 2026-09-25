@@ -4,7 +4,9 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { request, type Server } from "node:http";
+import { createChannel } from "better-sse";
 import { createHttpServer } from "../src/infrastructure/server/http-server.js";
+import { LatestEventStore } from "../src/domain/events/LatestEventStore.js";
 
 const TEST_PORT = 58217;
 
@@ -30,7 +32,8 @@ function requestWithHost(path: string, hostHeader: string): Promise<number> {
 
 async function startServer(): Promise<{ server: Server; staticDir: string }> {
   const staticDir = mkdtempSync(join(tmpdir(), "claude-village-test-"));
-  const server = createHttpServer({ port: TEST_PORT, staticDir });
+  const sse = { channel: createChannel(), store: new LatestEventStore(), keepAliveMs: 10000 };
+  const server = createHttpServer({ port: TEST_PORT, staticDir, sse });
   await new Promise<void>((resolve) => server.once("listening", resolve));
   return { server, staticDir };
 }
