@@ -10,6 +10,8 @@ export const texts = {
     installNoChanges: (): string => "Hooks already up to date",
     uninstallRemoved: (settingsPath: string): string => `Hooks removed from ${settingsPath}`,
     uninstallNothingToRemove: (): string => "No claude-village hooks found",
+    portInUse: (port: number): string => `Port ${port} is already in use, try a different one with --port`,
+    serverStartFailed: (message: string): string => `Server failed to start: ${message}`,
     invalidSettingsJson: (settingsPath: string): string => `${settingsPath} contains invalid JSON, nothing changed`,
   },
 };

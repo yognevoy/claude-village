@@ -70,6 +70,24 @@ test("GET /healthz returns 403 with a foreign Host (DNS rebinding protection)", 
   }
 });
 
+test("binding two servers to the same port surfaces EADDRINUSE on the second", async () => {
+  const { server: first, staticDir: firstStaticDir } = await startServer();
+  const secondStaticDir = mkdtempSync(join(tmpdir(), "claude-village-test-"));
+  const sse = { channel: createChannel(), store: new LatestEventStore(), keepAliveMs: 10000 };
+  const second = createHttpServer({ port: TEST_PORT, staticDir: secondStaticDir, sse });
+  try {
+    const error = await new Promise<NodeJS.ErrnoException>((resolve) => {
+      second.once("error", resolve);
+    });
+    assert.equal(error.code, "EADDRINUSE");
+  } finally {
+    second.removeAllListeners("error");
+    await stopServer(first);
+    rmSync(firstStaticDir, { recursive: true, force: true });
+    rmSync(secondStaticDir, { recursive: true, force: true });
+  }
+});
+
 test("unknown route returns 404", async () => {
   const { server, staticDir } = await startServer();
   try {

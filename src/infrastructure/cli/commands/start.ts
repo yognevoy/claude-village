@@ -33,13 +33,25 @@ export function createStartCommand(staticDir: string): Command {
       const poller = new EventStreamPoller(reader, parser, store, channel);
       poller.start();
 
-      createHttpServer({
+      const server = createHttpServer({
         port,
         host: DEFAULT_HOST,
         staticDir,
         sse: { channel, store, keepAliveMs: SSE_KEEP_ALIVE_MS },
       });
 
-      console.log(texts.cli.serverStarted(`http://${DEFAULT_HOST}:${port}`));
+      server.once("listening", () => {
+        console.log(texts.cli.serverStarted(`http://${DEFAULT_HOST}:${port}`));
+      });
+
+      server.once("error", (error: NodeJS.ErrnoException) => {
+        poller.stop();
+        if (error.code === "EADDRINUSE") {
+          console.log(texts.cli.portInUse(port));
+        } else {
+          console.log(texts.cli.serverStartFailed(error.message));
+        }
+        process.exitCode = 1;
+      });
     });
 }
