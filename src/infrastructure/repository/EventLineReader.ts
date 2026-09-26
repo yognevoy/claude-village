@@ -50,8 +50,8 @@ export class EventLineReader {
     const fd = openSync(this.filePath, "r");
     try {
       const buffer = Buffer.alloc(length);
-      readSync(fd, buffer, 0, length, start);
-      return buffer.toString("utf-8");
+      const bytesRead = readSync(fd, buffer, 0, length, start);
+      return buffer.toString("utf-8", 0, bytesRead);
     } finally {
       closeSync(fd);
     }
