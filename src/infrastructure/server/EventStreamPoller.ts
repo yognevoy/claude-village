@@ -23,7 +23,13 @@ export class EventStreamPoller {
   }
 
   private poll(): void {
-    const lines = this.reader.readNewLines();
+    let lines: string[];
+    try {
+      lines = this.reader.readNewLines();
+    } catch {
+      return;
+    }
+
     const records = this.parser.parseLines(lines);
     for (const record of records) {
       this.store.apply(record);
