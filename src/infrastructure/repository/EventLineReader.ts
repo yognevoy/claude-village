@@ -8,11 +8,11 @@ export class EventLineReader {
   constructor(
     private readonly filePath: string = getEventsFilePath(),
     private readonly maxFileBytes: number = DEFAULT_CONFIG.events.maxFileBytes,
-    private readonly fileChunkService: FileChunkService = new FileChunkService(),
+    private readonly chunkService: FileChunkService = new FileChunkService(),
   ) {}
 
   public readNewLines(): string[] {
-    const size = this.fileChunkService.getSize(this.filePath);
+    const size = this.chunkService.getSize(this.filePath);
     if (size === null) {
       return [];
     }
@@ -22,27 +22,37 @@ export class EventLineReader {
     }
 
     if (size === this.offsetBytes) {
-      this.rotateIfNeeded(size);
+      if (this.isFullyConsumed(size) && this.isOversized(size)) {
+        this.rotate();
+      }
       return [];
     }
 
-    const chunk = this.fileChunkService.readChunk(this.filePath, this.offsetBytes, size - this.offsetBytes);
+    const chunk = this.chunkService.readChunk(this.filePath, this.offsetBytes, size - this.offsetBytes);
     const segments = chunk.split("\n");
-    const completeLines = segments.slice(0, -1);
+    const lines = segments.slice(0, -1);
 
-    for (const line of completeLines) {
+    for (const line of lines) {
       this.offsetBytes += Buffer.byteLength(line, "utf-8") + 1;
     }
 
-    this.rotateIfNeeded(size);
+    if (this.isFullyConsumed(size) && this.isOversized(size)) {
+      this.rotate();
+    }
 
-    return completeLines;
+    return lines;
   }
 
-  private rotateIfNeeded(currentSize: number): void {
-    if (this.offsetBytes === currentSize && currentSize > this.maxFileBytes) {
-      this.fileChunkService.truncate(this.filePath);
-      this.offsetBytes = 0;
-    }
+  private isFullyConsumed(currentSize: number): boolean {
+    return this.offsetBytes === currentSize;
+  }
+
+  private isOversized(currentSize: number): boolean {
+    return currentSize > this.maxFileBytes;
+  }
+
+  private rotate(): void {
+    this.chunkService.truncate(this.filePath);
+    this.offsetBytes = 0;
   }
 }
