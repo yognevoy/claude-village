@@ -1,6 +1,6 @@
-import { closeSync, openSync, readSync, statSync, truncateSync } from "node:fs";
 import { getEventsFilePath } from "../../shared/paths.js";
 import { DEFAULT_CONFIG } from "../../shared/config.js";
+import { FileChunkService } from "./FileChunkService.js";
 
 export class EventLineReader {
   private offsetBytes = 0;
@@ -8,10 +8,11 @@ export class EventLineReader {
   constructor(
     private readonly filePath: string = getEventsFilePath(),
     private readonly maxFileBytes: number = DEFAULT_CONFIG.events.maxFileBytes,
+    private readonly fileChunkService: FileChunkService = new FileChunkService(),
   ) {}
 
   public readNewLines(): string[] {
-    const size = this.statSizeOrNull();
+    const size = this.fileChunkService.getSize(this.filePath);
     if (size === null) {
       return [];
     }
@@ -25,7 +26,7 @@ export class EventLineReader {
       return [];
     }
 
-    const chunk = this.readChunk(this.offsetBytes, size - this.offsetBytes);
+    const chunk = this.fileChunkService.readChunk(this.filePath, this.offsetBytes, size - this.offsetBytes);
     const segments = chunk.split("\n");
     const completeLines = segments.slice(0, -1);
 
@@ -38,28 +39,9 @@ export class EventLineReader {
     return completeLines;
   }
 
-  private statSizeOrNull(): number | null {
-    try {
-      return statSync(this.filePath).size;
-    } catch {
-      return null;
-    }
-  }
-
-  private readChunk(start: number, length: number): string {
-    const fd = openSync(this.filePath, "r");
-    try {
-      const buffer = Buffer.alloc(length);
-      const bytesRead = readSync(fd, buffer, 0, length, start);
-      return buffer.toString("utf-8", 0, bytesRead);
-    } finally {
-      closeSync(fd);
-    }
-  }
-
   private rotateIfNeeded(currentSize: number): void {
     if (this.offsetBytes === currentSize && currentSize > this.maxFileBytes) {
-      truncateSync(this.filePath, 0);
+      this.fileChunkService.truncate(this.filePath);
       this.offsetBytes = 0;
     }
   }
