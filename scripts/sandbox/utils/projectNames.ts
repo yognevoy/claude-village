@@ -1,0 +1,18 @@
+export const PROJECT_NAMES: readonly string[] = [
+  "fox",
+  "otter",
+  "badger",
+  "lynx",
+  "heron",
+  "wolf",
+  "raven",
+  "hare",
+  "marten",
+  "ibex",
+  "falcon",
+  "beaver",
+  "moose",
+  "lemur",
+  "orca",
+  "mantis",
+];
