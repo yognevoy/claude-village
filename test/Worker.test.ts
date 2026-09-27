@@ -110,3 +110,40 @@ test("isQueued is true only while the phase is Queued", () => {
 
   assert.equal(worker.isQueued(), false);
 });
+
+const thresholds = { campfireAfterSec: 120, tavernAfterSec: 900, vanishAfterSec: 10800 };
+
+test("idlePhaseAt returns null while idle time stays below the campfire threshold", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 0);
+
+  assert.equal(worker.idlePhaseAt(0, thresholds), null);
+  assert.equal(worker.idlePhaseAt(119_999, thresholds), null);
+});
+
+test("idlePhaseAt returns AtCampfire from the campfire threshold up to the tavern threshold", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 0);
+
+  assert.equal(worker.idlePhaseAt(120_000, thresholds), WorkerPhase.AtCampfire);
+  assert.equal(worker.idlePhaseAt(899_999, thresholds), WorkerPhase.AtCampfire);
+});
+
+test("idlePhaseAt returns AtTavern from the tavern threshold up to the vanish threshold", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 0);
+
+  assert.equal(worker.idlePhaseAt(900_000, thresholds), WorkerPhase.AtTavern);
+  assert.equal(worker.idlePhaseAt(10_799_999, thresholds), WorkerPhase.AtTavern);
+});
+
+test("idlePhaseAt returns Gone from the vanish threshold onward", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 0);
+
+  assert.equal(worker.idlePhaseAt(10_800_000, thresholds), WorkerPhase.Gone);
+  assert.equal(worker.idlePhaseAt(50_000_000, thresholds), WorkerPhase.Gone);
+});
+
+test("idlePhaseAt measures idle time from lastEventAt, not from worker creation", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 1000);
+  worker.onPostTool(500_000);
+
+  assert.equal(worker.idlePhaseAt(500_000 + 120_000, thresholds), WorkerPhase.AtCampfire);
+});

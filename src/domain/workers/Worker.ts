@@ -1,3 +1,4 @@
+import type { IdleThresholdsConfig } from "../../shared/config.js";
 import type { SpotType } from "../spots/SpotType.js";
 import { WorkerPhase } from "./WorkerPhase.js";
 
@@ -47,6 +48,24 @@ export class Worker {
 
   public setPhase(phase: WorkerPhase): void {
     this._phase = phase;
+  }
+
+  public idlePhaseAt(now: number, thresholds: IdleThresholdsConfig): WorkerPhase | null {
+    const idleSec = (now - this._lastEventAt) / 1000;
+
+    if (idleSec >= thresholds.vanishAfterSec) {
+      return WorkerPhase.Gone;
+    }
+
+    if (idleSec >= thresholds.tavernAfterSec) {
+      return WorkerPhase.AtTavern;
+    }
+
+    if (idleSec >= thresholds.campfireAfterSec) {
+      return WorkerPhase.AtCampfire;
+    }
+
+    return null;
   }
 
   public isAtSpot(): boolean {

@@ -4,7 +4,7 @@ export interface SpotSlotsConfig {
   river: number;
 }
 
-export interface SleepThresholdsConfig {
+export interface IdleThresholdsConfig {
   campfireAfterSec: number;
   tavernAfterSec: number;
   vanishAfterSec: number;
@@ -22,7 +22,7 @@ export interface EventsConfig {
 export interface Config {
   port: number;
   spots: SpotSlotsConfig;
-  sleep: SleepThresholdsConfig;
+  idle: IdleThresholdsConfig;
   subagents: SubagentsConfig;
   events: EventsConfig;
 }
@@ -34,7 +34,7 @@ export const DEFAULT_CONFIG: Config = {
     forest: 4,
     river: 4,
   },
-  sleep: {
+  idle: {
     campfireAfterSec: 120,
     tavernAfterSec: 900,
     vanishAfterSec: 10800,
