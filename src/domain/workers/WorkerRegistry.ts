@@ -1,4 +1,3 @@
-import type { Clock } from "./Clock.js";
 import type { SpotSlotsConfig } from "../../shared/config.js";
 import type { EventRecord } from "../events/EventRecord.js";
 import { SpotSlotRegistry } from "../spots/SpotSlotRegistry.js";
@@ -6,18 +5,15 @@ import { SpotTypeSelector } from "../spots/SpotTypeSelector.js";
 import { Worker } from "./Worker.js";
 import { WorkerEventDispatcher } from "./WorkerEventDispatcher.js";
 import type { WorkerLifecycle } from "./WorkerEventDispatcher.js";
+import type { IdleWorkerStore } from "./WorkerIdleScheduler.js";
 import { WorkerPhase } from "./WorkerPhase.js";
 
-export class WorkerRegistry implements WorkerLifecycle {
+export class WorkerRegistry implements WorkerLifecycle, IdleWorkerStore {
   private readonly workers = new Map<string, Worker>();
   private readonly spotSlotRegistry: SpotSlotRegistry;
   private readonly dispatcher: WorkerEventDispatcher;
 
-  public constructor(
-    spotsConfig: SpotSlotsConfig,
-    private readonly clock: Clock,
-    random?: () => number,
-  ) {
+  public constructor(spotsConfig: SpotSlotsConfig, random?: () => number) {
     const spotTypeSelector = new SpotTypeSelector(random);
     this.spotSlotRegistry = new SpotSlotRegistry(spotsConfig, spotTypeSelector);
     this.dispatcher = new WorkerEventDispatcher(this);
@@ -71,27 +67,30 @@ export class WorkerRegistry implements WorkerLifecycle {
   }
 
   public remove(worker: Worker): void {
-    const spot = this.spotSlotRegistry.of(worker.spotType);
-
-    if (worker.isAtSpot()) {
-      const promoted = spot.leave(worker.sessionId);
-      this.promote(promoted);
-    } else if (worker.isQueued()) {
-      spot.cancel(worker.sessionId);
-    }
-
+    this.release(worker);
     this.workers.delete(worker.sessionId);
   }
 
-  private promote(sessionId: string | null): void {
-    if (sessionId === null) {
-      return;
-    }
+  public idle(worker: Worker, phase: WorkerPhase): void {
+    this.release(worker);
+    worker.setPhase(phase);
+  }
 
-    const promoted = this.workers.get(sessionId);
+  private release(worker: Worker): void {
+    const spot = this.spotSlotRegistry.of(worker.spotType);
 
-    if (promoted !== undefined) {
-      promoted.setPhase(WorkerPhase.AtSpot);
+    if (worker.isAtSpot()) {
+      const promotedId = spot.leave(worker.sessionId);
+
+      if (promotedId !== null) {
+        const promoted = this.workers.get(promotedId);
+
+        if (promoted !== undefined) {
+          promoted.setPhase(WorkerPhase.AtSpot);
+        }
+      }
+    } else if (worker.isQueued()) {
+      spot.cancel(worker.sessionId);
     }
   }
 }
