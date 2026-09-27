@@ -21,37 +21,14 @@ function pool(mine: SpotState, forest: SpotState, river: SpotState): SpotPool {
   );
 }
 
-test("select returns the only type with free slots", () => {
+test("select delegates to the weighted strategy when a free slot exists somewhere", () => {
   const selector = new SpotTypeSelector(() => 0.999);
   const type = selector.select(pool({ free: 0, load: 0 }, { free: 2, load: 0 }, { free: 0, load: 0 }));
   assert.equal(type, SpotType.Forest);
 });
 
-test("select picks proportionally to free slot weight using the injected random source", () => {
-  const selector = new SpotTypeSelector(() => 0);
-  const type = selector.select(pool({ free: 1, load: 0 }, { free: 1, load: 0 }, { free: 1, load: 0 }));
-  assert.equal(type, SpotType.Mine);
-});
-
-test("select falls into the next weighted band as the random draw grows", () => {
-  const rolls = [0, 0.4, 0.9];
-  let index = 0;
-  const selector = new SpotTypeSelector(() => rolls[index++] as number);
-  const evenPool = pool({ free: 1, load: 0 }, { free: 1, load: 0 }, { free: 1, load: 0 });
-
-  assert.equal(selector.select(evenPool), SpotType.Mine);
-  assert.equal(selector.select(evenPool), SpotType.Forest);
-  assert.equal(selector.select(evenPool), SpotType.River);
-});
-
-test("select falls back to the least loaded type when nothing has a free slot", () => {
+test("select delegates to the least loaded strategy once every type is full", () => {
   const selector = new SpotTypeSelector(() => 0.5);
   const type = selector.select(pool({ free: 0, load: 5 }, { free: 0, load: 2 }, { free: 0, load: 5 }));
   assert.equal(type, SpotType.Forest);
-});
-
-test("select breaks load ties by enum order", () => {
-  const selector = new SpotTypeSelector(() => 0.5);
-  const type = selector.select(pool({ free: 0, load: 3 }, { free: 0, load: 3 }, { free: 0, load: 3 }));
-  assert.equal(type, SpotType.Mine);
 });
