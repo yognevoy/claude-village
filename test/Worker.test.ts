@@ -81,6 +81,45 @@ test("onStop raises the question, clears the alert and working state, and touche
   assert.equal(worker.lastEventAt, 1200);
 });
 
+test("onSubagentActivity records the subagent and touches lastEventAt", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 1000);
+
+  worker.onSubagentActivity("a1", 1100);
+
+  assert.equal(worker.subagentCount(), 1);
+  assert.equal(worker.lastEventAt, 1100);
+});
+
+test("onSubagentActivity for an already known subagent still counts as one subagent", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 1000);
+  worker.onSubagentActivity("a1", 1100);
+
+  worker.onSubagentActivity("a1", 1200);
+
+  assert.equal(worker.subagentCount(), 1);
+  assert.equal(worker.lastEventAt, 1200);
+});
+
+test("onSubagentStop removes the subagent without touching lastEventAt", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 1000);
+  worker.onSubagentActivity("a1", 1100);
+
+  worker.onSubagentStop("a1");
+
+  assert.equal(worker.subagentCount(), 0);
+  assert.equal(worker.lastEventAt, 1100);
+});
+
+test("subagents exposes the underlying registry for direct queries", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 1000);
+  worker.onSubagentActivity("a1", 1000);
+
+  worker.subagents.pruneIdle(1000 + 30_000, 30);
+
+  assert.equal(worker.subagentCount(), 0);
+});
+
+
 test("setPhase changes the phase directly", () => {
   const worker = new Worker("s1", "project", SpotType.Mine, true, 1000);
 

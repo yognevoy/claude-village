@@ -1,5 +1,6 @@
 import type { IdleThresholdsConfig } from "../../shared/config.js";
 import type { SpotType } from "../spots/SpotType.js";
+import { SubagentRegistry } from "./SubagentRegistry.js";
 import { WorkerPhase } from "./WorkerPhase.js";
 
 export class Worker {
@@ -9,6 +10,7 @@ export class Worker {
   private _hasAlert = false;
   private _hasQuestion = false;
   private _lastEventAt: number;
+  private readonly _subagents = new SubagentRegistry();
 
   public constructor(
     public readonly sessionId: string,
@@ -44,6 +46,10 @@ export class Worker {
 
   public get lastEventAt(): number {
     return this._lastEventAt;
+  }
+
+  public get subagents(): SubagentRegistry {
+    return this._subagents;
   }
 
   public setPhase(phase: WorkerPhase): void {
@@ -107,6 +113,19 @@ export class Worker {
     this._hasAlert = false;
     this._isWorking = false;
     this.touch(timestamp);
+  }
+
+  public onSubagentActivity(agentId: string, timestamp: number): void {
+    this._subagents.touch(agentId, timestamp);
+    this.touch(timestamp);
+  }
+
+  public onSubagentStop(agentId: string): void {
+    this._subagents.stop(agentId);
+  }
+
+  public subagentCount(): number {
+    return this._subagents.count();
   }
 
   private touch(timestamp: number): void {
