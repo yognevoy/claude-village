@@ -33,6 +33,7 @@ class FakeIdleWorkerStore implements IdleWorkerStore {
 }
 
 const thresholds = { campfireAfterSec: 120, tavernAfterSec: 900, vanishAfterSec: 10800 };
+const subagents = { maxVisible: 6, idleSec: 30 };
 
 test("does nothing while a worker's idle time stays below the campfire threshold", () => {
   const store = new FakeIdleWorkerStore();
@@ -40,7 +41,7 @@ test("does nothing while a worker's idle time stays below the campfire threshold
   store.workers.push(worker);
   const clock = new FakeClock(119_000);
 
-  new WorkerIdleScheduler(store, clock, thresholds).tick();
+  new WorkerIdleScheduler(store, clock, thresholds, subagents).tick();
 
   assert.equal(store.idleCalls.length, 0);
   assert.equal(worker.phase, WorkerPhase.AtSpot);
@@ -52,7 +53,7 @@ test("sends a worker to the campfire once its idle time reaches the campfire thr
   store.workers.push(worker);
   const clock = new FakeClock(120_000);
 
-  new WorkerIdleScheduler(store, clock, thresholds).tick();
+  new WorkerIdleScheduler(store, clock, thresholds, subagents).tick();
 
   assert.deepEqual(store.idleCalls, [{ sessionId: "s1", phase: WorkerPhase.AtCampfire }]);
 });
@@ -63,7 +64,7 @@ test("sends a worker to the tavern once its idle time reaches the tavern thresho
   store.workers.push(worker);
   const clock = new FakeClock(900_000);
 
-  new WorkerIdleScheduler(store, clock, thresholds).tick();
+  new WorkerIdleScheduler(store, clock, thresholds, subagents).tick();
 
   assert.deepEqual(store.idleCalls, [{ sessionId: "s1", phase: WorkerPhase.AtTavern }]);
 });
@@ -74,7 +75,7 @@ test("makes a worker vanish once its idle time reaches the vanish threshold", ()
   store.workers.push(worker);
   const clock = new FakeClock(10_800_000);
 
-  new WorkerIdleScheduler(store, clock, thresholds).tick();
+  new WorkerIdleScheduler(store, clock, thresholds, subagents).tick();
 
   assert.deepEqual(store.idleCalls, [{ sessionId: "s1", phase: WorkerPhase.Gone }]);
 });
@@ -86,7 +87,7 @@ test("does not call idle again once a worker already sits at the matching idle p
   store.workers.push(worker);
   const clock = new FakeClock(500_000);
 
-  new WorkerIdleScheduler(store, clock, thresholds).tick();
+  new WorkerIdleScheduler(store, clock, thresholds, subagents).tick();
 
   assert.equal(store.idleCalls.length, 0);
 });
@@ -98,7 +99,31 @@ test("evaluates each worker independently on the same tick", () => {
   store.workers.push(freshWorker, idleWorker);
   const clock = new FakeClock(900_000);
 
-  new WorkerIdleScheduler(store, clock, thresholds).tick();
+  new WorkerIdleScheduler(store, clock, thresholds, subagents).tick();
 
   assert.deepEqual(store.idleCalls, [{ sessionId: "s2", phase: WorkerPhase.AtTavern }]);
+});
+
+test("also prunes a worker's subagents that have been silent past the subagent idleSec", () => {
+  const store = new FakeIdleWorkerStore();
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 0);
+  worker.onSubagentActivity("a1", 0);
+  store.workers.push(worker);
+  const clock = new FakeClock(30_000);
+
+  new WorkerIdleScheduler(store, clock, thresholds, subagents).tick();
+
+  assert.equal(worker.subagentCount(), 0);
+});
+
+test("keeps a worker's subagent that has been refreshed recently", () => {
+  const store = new FakeIdleWorkerStore();
+  const worker = new Worker("s1", "project", SpotType.Mine, true, 0);
+  worker.onSubagentActivity("a1", 0);
+  store.workers.push(worker);
+  const clock = new FakeClock(29_000);
+
+  new WorkerIdleScheduler(store, clock, thresholds, subagents).tick();
+
+  assert.equal(worker.subagentCount(), 1);
 });

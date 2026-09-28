@@ -1,5 +1,5 @@
 import type { Clock } from "./Clock.js";
-import type { IdleThresholdsConfig } from "../../shared/config.js";
+import type { IdleThresholdsConfig, SubagentsConfig } from "../../shared/config.js";
 import type { Worker } from "./Worker.js";
 import type { WorkerPhase } from "./WorkerPhase.js";
 
@@ -13,6 +13,7 @@ export class WorkerIdleScheduler {
     private readonly store: IdleWorkerStore,
     private readonly clock: Clock,
     private readonly thresholds: IdleThresholdsConfig,
+    private readonly subagents: SubagentsConfig,
   ) {}
 
   public tick(): void {
@@ -20,6 +21,7 @@ export class WorkerIdleScheduler {
 
     for (const worker of this.store.list()) {
       this.evaluate(worker, now);
+      worker.subagents.pruneIdle(now, this.subagents.idleSec);
     }
   }
 

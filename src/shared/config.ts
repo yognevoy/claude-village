@@ -12,7 +12,7 @@ export interface IdleThresholdsConfig {
 
 export interface SubagentsConfig {
   maxVisible: number;
-  staleSec: number;
+  idleSec: number;
 }
 
 export interface EventsConfig {
@@ -41,7 +41,7 @@ export const DEFAULT_CONFIG: Config = {
   },
   subagents: {
     maxVisible: 6,
-    staleSec: 30,
+    idleSec: 30,
   },
   events: {
     maxFileBytes: 5242880,
