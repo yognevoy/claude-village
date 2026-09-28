@@ -77,15 +77,16 @@ test("PreToolUse without an agentId starts working and wakes the worker", () => 
   assert.deepEqual(registry.wakeCalls, ["s1"]);
 });
 
-test("PreToolUse from a subagent does not touch the parent worker or wake it", () => {
+test("PreToolUse from a subagent starts working, records the subagent, and wakes the parent", () => {
   const registry = new FakeWorkerLifecycle();
   const dispatcher = new WorkerEventDispatcher(registry);
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
 
   dispatcher.apply(record("PreToolUse", "s1", 1100, { toolName: "Bash", agentId: "a1" }));
 
-  assert.equal(worker.isWorking, false);
-  assert.equal(registry.wakeCalls.length, 0);
+  assert.equal(worker.isWorking, true);
+  assert.equal(worker.subagentCount(), 1);
+  assert.deepEqual(registry.wakeCalls, ["s1"]);
 });
 
 test("PermissionRequest raises the alert and wakes the worker", () => {
@@ -112,15 +113,18 @@ test("PostToolUse without an agentId clears the alert and wakes the worker", () 
   assert.deepEqual(registry.wakeCalls, ["s1"]);
 });
 
-test("PostToolUse from a subagent does not touch the parent worker or wake it", () => {
+test("PostToolUse from a subagent keeps working, records the subagent, and wakes the parent", () => {
   const registry = new FakeWorkerLifecycle();
   const dispatcher = new WorkerEventDispatcher(registry);
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
+  worker.onAlertTriggered(1050);
 
   dispatcher.apply(record("PostToolUse", "s1", 1100, { toolName: "Bash", agentId: "a1" }));
 
-  assert.equal(worker.isWorking, false);
-  assert.equal(registry.wakeCalls.length, 0);
+  assert.equal(worker.isWorking, true);
+  assert.equal(worker.hasAlert, false);
+  assert.equal(worker.subagentCount(), 1);
+  assert.deepEqual(registry.wakeCalls, ["s1"]);
 });
 
 test("an idle_prompt Notification does not raise the alert or wake the worker", () => {
@@ -170,12 +174,48 @@ test("SessionEnd removes the worker", () => {
   assert.deepEqual(registry.removeCalls, ["s1"]);
 });
 
-test("SubagentStart and SubagentStop only ensure the worker, without waking or removing it", () => {
+test("PermissionRequest from a subagent raises the alert, records the subagent, and wakes the parent", () => {
+  const registry = new FakeWorkerLifecycle();
+  const dispatcher = new WorkerEventDispatcher(registry);
+  const worker = registry.spawn(record("SessionStart", "s1", 1000));
+
+  dispatcher.apply(record("PermissionRequest", "s1", 1100, { toolName: "Bash", agentId: "a1" }));
+
+  assert.equal(worker.hasAlert, true);
+  assert.equal(worker.subagentCount(), 1);
+  assert.deepEqual(registry.wakeCalls, ["s1"]);
+});
+
+test("SubagentStart records the subagent on the parent and wakes it", () => {
+  const registry = new FakeWorkerLifecycle();
+  const dispatcher = new WorkerEventDispatcher(registry);
+  const worker = registry.spawn(record("SessionStart", "s1", 1000));
+
+  dispatcher.apply(record("SubagentStart", "s1", 1100, { agentId: "a1" }));
+
+  assert.equal(worker.subagentCount(), 1);
+  assert.deepEqual(registry.wakeCalls, ["s1"]);
+});
+
+test("SubagentStop removes the subagent from the parent and wakes it, without removing the parent", () => {
+  const registry = new FakeWorkerLifecycle();
+  const dispatcher = new WorkerEventDispatcher(registry);
+  const worker = registry.spawn(record("SessionStart", "s1", 1000));
+  dispatcher.apply(record("SubagentStart", "s1", 1100, { agentId: "a1" }));
+
+  dispatcher.apply(record("SubagentStop", "s1", 1200, { agentId: "a1" }));
+
+  assert.equal(worker.subagentCount(), 0);
+  assert.equal(registry.removeCalls.length, 0);
+  assert.deepEqual(registry.wakeCalls, ["s1", "s1"]);
+});
+
+test("SubagentStart and SubagentStop without an agentId only ensure the worker exists", () => {
   const registry = new FakeWorkerLifecycle();
   const dispatcher = new WorkerEventDispatcher(registry);
 
-  dispatcher.apply(record("SubagentStart", "s1", 1000, { agentId: "a1" }));
-  dispatcher.apply(record("SubagentStop", "s1", 1100, { agentId: "a1" }));
+  dispatcher.apply(record("SubagentStart", "s1", 1000));
+  dispatcher.apply(record("SubagentStop", "s1", 1100));
 
   assert.equal(registry.wakeCalls.length, 0);
   assert.equal(registry.removeCalls.length, 0);

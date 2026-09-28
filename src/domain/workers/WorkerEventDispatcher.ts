@@ -42,8 +42,11 @@ export class WorkerEventDispatcher {
         return;
 
       case ClaudeEvent.SubagentStart:
+        this.handleSubagentStart(record);
+        return;
+
       case ClaudeEvent.SubagentStop:
-        this.registry.spawn(record);
+        this.handleSubagentStop(record);
         return;
 
       case ClaudeEvent.SessionEnd:
@@ -69,7 +72,7 @@ export class WorkerEventDispatcher {
     const worker = this.registry.spawn(record);
 
     if (record.agentId !== null) {
-      return;
+      worker.onSubagentActivity(record.agentId, record.ts);
     }
 
     worker.onPreTool(record.ts);
@@ -79,6 +82,10 @@ export class WorkerEventDispatcher {
   private handlePermissionRequest(record: EventRecord): void {
     const worker = this.registry.spawn(record);
 
+    if (record.agentId !== null) {
+      worker.onSubagentActivity(record.agentId, record.ts);
+    }
+
     worker.onAlertTriggered(record.ts);
     this.registry.wake(worker);
   }
@@ -87,7 +94,7 @@ export class WorkerEventDispatcher {
     const worker = this.registry.spawn(record);
 
     if (record.agentId !== null) {
-      return;
+      worker.onSubagentActivity(record.agentId, record.ts);
     }
 
     worker.onPostTool(record.ts);
@@ -117,5 +124,27 @@ export class WorkerEventDispatcher {
     const worker = this.registry.spawn(record);
 
     this.registry.remove(worker);
+  }
+
+  private handleSubagentStart(record: EventRecord): void {
+    const worker = this.registry.spawn(record);
+
+    if (record.agentId === null) {
+      return;
+    }
+
+    worker.onSubagentActivity(record.agentId, record.ts);
+    this.registry.wake(worker);
+  }
+
+  private handleSubagentStop(record: EventRecord): void {
+    const worker = this.registry.spawn(record);
+
+    if (record.agentId === null) {
+      return;
+    }
+
+    worker.onSubagentStop(record.agentId);
+    this.registry.wake(worker);
   }
 }
