@@ -120,6 +120,18 @@ test("idle on a queued worker cancels its queue position instead of touching the
   assert.equal(registry.get("s1")?.phase, WorkerPhase.AtSpot);
 });
 
+test("PostToolUse grows the resource counter for the worker's spot type", () => {
+  const registry = newRegistry();
+  registry.apply(record("SessionStart", "s1", 1000));
+  const worker = registry.get("s1");
+  assert.ok(worker);
+
+  registry.apply(record("PostToolUse", "s1", 1100, { toolName: "Bash" }));
+  registry.apply(record("PostToolUse", "s1", 1200, { toolName: "Bash" }));
+
+  assert.equal(registry.resourceCounters.get(worker.spotType), 2);
+});
+
 test("a new event wakes a worker from AtCampfire, AtTavern, or Gone back onto its own spot type", () => {
   for (const phase of [WorkerPhase.AtCampfire, WorkerPhase.AtTavern, WorkerPhase.Gone]) {
     const registry = newRegistry();

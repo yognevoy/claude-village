@@ -1,5 +1,6 @@
 import { ClaudeEvent } from "../events/ClaudeEvent.js";
 import type { EventRecord } from "../events/EventRecord.js";
+import type { ResourceCounters } from "../resources/ResourceCounters.js";
 import type { Worker } from "./Worker.js";
 
 export interface WorkerLifecycle {
@@ -9,7 +10,10 @@ export interface WorkerLifecycle {
 }
 
 export class WorkerEventDispatcher {
-  public constructor(private readonly registry: WorkerLifecycle) {}
+  public constructor(
+    private readonly registry: WorkerLifecycle,
+    private readonly resources: ResourceCounters,
+  ) {}
 
   public apply(record: EventRecord): void {
     switch (record.event) {
@@ -99,6 +103,7 @@ export class WorkerEventDispatcher {
 
     worker.onPostTool(record.ts);
     this.registry.wake(worker);
+    this.resources.increment(worker.spotType);
   }
 
   private handleNotification(record: EventRecord): void {

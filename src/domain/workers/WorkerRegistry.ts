@@ -1,5 +1,6 @@
 import type { SpotSlotsConfig } from "../../shared/config.js";
 import type { EventRecord } from "../events/EventRecord.js";
+import { ResourceCounters } from "../resources/ResourceCounters.js";
 import { SpotSlotRegistry } from "../spots/SpotSlotRegistry.js";
 import { SpotTypeSelector } from "../spots/SpotTypeSelector.js";
 import { Worker } from "./Worker.js";
@@ -12,11 +13,17 @@ export class WorkerRegistry implements WorkerLifecycle, IdleWorkerStore {
   private readonly workers = new Map<string, Worker>();
   private readonly spotSlotRegistry: SpotSlotRegistry;
   private readonly dispatcher: WorkerEventDispatcher;
+  private readonly _resourceCounters: ResourceCounters;
 
   public constructor(spotsConfig: SpotSlotsConfig, random?: () => number) {
     const spotTypeSelector = new SpotTypeSelector(random);
     this.spotSlotRegistry = new SpotSlotRegistry(spotsConfig, spotTypeSelector);
-    this.dispatcher = new WorkerEventDispatcher(this);
+    this._resourceCounters = new ResourceCounters();
+    this.dispatcher = new WorkerEventDispatcher(this, this._resourceCounters);
+  }
+
+  public get resourceCounters(): ResourceCounters {
+    return this._resourceCounters;
   }
 
   public list(): readonly Worker[] {

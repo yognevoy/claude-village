@@ -4,6 +4,7 @@ import { WorkerEventDispatcher, type WorkerLifecycle } from "../src/domain/worke
 import { Worker } from "../src/domain/workers/Worker.js";
 import { SpotType } from "../src/domain/spots/SpotType.js";
 import { EventRecord } from "../src/domain/events/EventRecord.js";
+import { ResourceCounters } from "../src/domain/resources/ResourceCounters.js";
 
 class FakeWorkerLifecycle implements WorkerLifecycle {
   private readonly workers = new Map<string, Worker>();
@@ -47,7 +48,7 @@ function record(event: string, sessionId: string, ts: number, overrides: Record<
 
 test("SessionStart calls onSessionStart and does not wake the worker", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
 
   dispatcher.apply(record("SessionStart", "s1", 1000));
 
@@ -56,7 +57,7 @@ test("SessionStart calls onSessionStart and does not wake the worker", () => {
 
 test("UserPromptSubmit clears the question and wakes the worker", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
   worker.onStop(1050);
 
@@ -68,7 +69,7 @@ test("UserPromptSubmit clears the question and wakes the worker", () => {
 
 test("PreToolUse without an agentId starts working and wakes the worker", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
 
   dispatcher.apply(record("PreToolUse", "s1", 1100, { toolName: "Bash" }));
@@ -79,7 +80,7 @@ test("PreToolUse without an agentId starts working and wakes the worker", () => 
 
 test("PreToolUse from a subagent starts working, records the subagent, and wakes the parent", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
 
   dispatcher.apply(record("PreToolUse", "s1", 1100, { toolName: "Bash", agentId: "a1" }));
@@ -91,7 +92,7 @@ test("PreToolUse from a subagent starts working, records the subagent, and wakes
 
 test("PermissionRequest raises the alert and wakes the worker", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
 
   dispatcher.apply(record("PermissionRequest", "s1", 1100, { toolName: "Bash" }));
@@ -100,9 +101,10 @@ test("PermissionRequest raises the alert and wakes the worker", () => {
   assert.deepEqual(registry.wakeCalls, ["s1"]);
 });
 
-test("PostToolUse without an agentId clears the alert and wakes the worker", () => {
+test("PostToolUse without an agentId clears the alert, wakes the worker, and grows the spot type's resource", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const resourceCounters = new ResourceCounters();
+  const dispatcher = new WorkerEventDispatcher(registry, resourceCounters);
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
   worker.onAlertTriggered(1050);
 
@@ -111,11 +113,13 @@ test("PostToolUse without an agentId clears the alert and wakes the worker", () 
   assert.equal(worker.isWorking, true);
   assert.equal(worker.hasAlert, false);
   assert.deepEqual(registry.wakeCalls, ["s1"]);
+  assert.equal(resourceCounters.get(worker.spotType), 1);
 });
 
-test("PostToolUse from a subagent keeps working, records the subagent, and wakes the parent", () => {
+test("PostToolUse from a subagent keeps working, records the subagent, wakes the parent, and grows the parent's resource", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const resourceCounters = new ResourceCounters();
+  const dispatcher = new WorkerEventDispatcher(registry, resourceCounters);
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
   worker.onAlertTriggered(1050);
 
@@ -125,11 +129,12 @@ test("PostToolUse from a subagent keeps working, records the subagent, and wakes
   assert.equal(worker.hasAlert, false);
   assert.equal(worker.subagentCount(), 1);
   assert.deepEqual(registry.wakeCalls, ["s1"]);
+  assert.equal(resourceCounters.get(worker.spotType), 1);
 });
 
 test("an idle_prompt Notification does not raise the alert or wake the worker", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
 
   dispatcher.apply(record("Notification", "s1", 1100, { notificationType: "idle_prompt" }));
@@ -140,7 +145,7 @@ test("an idle_prompt Notification does not raise the alert or wake the worker", 
 
 test("a non-idle Notification raises the alert and wakes the worker", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
 
   dispatcher.apply(record("Notification", "s1", 1100, { notificationType: "elicitation_dialog" }));
@@ -151,7 +156,7 @@ test("a non-idle Notification raises the alert and wakes the worker", () => {
 
 test("Stop raises the question, clears the alert and working state, and wakes the worker", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
   worker.onPreTool(1050);
   worker.onAlertTriggered(1050);
@@ -166,7 +171,7 @@ test("Stop raises the question, clears the alert and working state, and wakes th
 
 test("SessionEnd removes the worker", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   registry.spawn(record("SessionStart", "s1", 1000));
 
   dispatcher.apply(record("SessionEnd", "s1", 1100));
@@ -176,7 +181,7 @@ test("SessionEnd removes the worker", () => {
 
 test("PermissionRequest from a subagent raises the alert, records the subagent, and wakes the parent", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
 
   dispatcher.apply(record("PermissionRequest", "s1", 1100, { toolName: "Bash", agentId: "a1" }));
@@ -188,7 +193,7 @@ test("PermissionRequest from a subagent raises the alert, records the subagent, 
 
 test("SubagentStart records the subagent on the parent and wakes it", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
 
   dispatcher.apply(record("SubagentStart", "s1", 1100, { agentId: "a1" }));
@@ -199,7 +204,7 @@ test("SubagentStart records the subagent on the parent and wakes it", () => {
 
 test("SubagentStop removes the subagent from the parent and wakes it, without removing the parent", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   const worker = registry.spawn(record("SessionStart", "s1", 1000));
   dispatcher.apply(record("SubagentStart", "s1", 1100, { agentId: "a1" }));
 
@@ -212,7 +217,7 @@ test("SubagentStop removes the subagent from the parent and wakes it, without re
 
 test("SubagentStart and SubagentStop without an agentId only ensure the worker exists", () => {
   const registry = new FakeWorkerLifecycle();
-  const dispatcher = new WorkerEventDispatcher(registry);
+  const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
 
   dispatcher.apply(record("SubagentStart", "s1", 1000));
   dispatcher.apply(record("SubagentStop", "s1", 1100));
