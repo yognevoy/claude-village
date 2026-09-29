@@ -4,10 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Claude Village</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" />
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <div id="app"></div>
+    <canvas id="background"></canvas>
+    <div id="stage">
+      <h1 id="title"></h1>
+      <div id="frame">
+        <span class="corner corner-tl"></span>
+        <span class="corner corner-tr"></span>
+        <span class="corner corner-bl"></span>
+        <span class="corner corner-br"></span>
+        <canvas id="game"></canvas>
+      </div>
+      <div class="hud">
+        <div class="counters">
+          <div class="counter"><span class="swatch stone"></span><span id="stone-counter"></span></div>
+          <div class="counter"><span class="swatch wood"></span><span id="wood-counter"></span></div>
+          <div class="counter"><span class="swatch fish"></span><span id="fish-counter"></span></div>
+        </div>
+        <button class="sound-toggle" id="soundBtn" type="button" aria-pressed="false">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M2 6H4.5L8 3V13L4.5 10H2V6Z" fill="currentColor" />
+            <path id="soundWave" d="M10.5 5.5C11.5 6.5 11.5 9.5 10.5 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+          <span id="soundLabel"></span>
+        </button>
+      </div>
+    </div>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

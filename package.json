@@ -18,7 +18,8 @@
     "dev:client": "vite",
     "dev:sandbox": "tsx scripts/sandbox.ts",
     "test": "tsx --test test/**/*.test.ts",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck:client": "tsc -p src/client/tsconfig.json"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

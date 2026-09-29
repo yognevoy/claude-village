@@ -1,10 +1,175 @@
+:root {
+  --stone-1: #2b241f;
+  --mortar: #1a1512;
+  --ink: #241f1a;
+  --wood-dark: #43301f;
+  --wood: #6b4a2f;
+  --wood-light: #8c6740;
+  --gold: #dda63c;
+  --parchment: #ecdcb8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
+  height: 100%;
   margin: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding-top: 48px;
+  background: var(--stone-1);
+  overflow: hidden;
+}
+
+#background {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+#stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+#title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  text-shadow: 2px 2px 0 var(--ink);
+  margin: 0 0 32px;
+  text-align: center;
+  text-wrap: balance;
+}
+
+#frame {
+  position: relative;
+  padding: 8px;
+  background: linear-gradient(160deg, var(--wood-light), var(--wood) 45%, var(--wood-dark));
+  box-shadow:
+    0 0 0 3px var(--mortar),
+    0 0 0 6px var(--wood-dark),
+    inset 0 0 0 3px var(--wood-dark),
+    inset 0 0 18px rgba(0, 0, 0, 0.55),
+    0 14px 30px rgba(0, 0, 0, 0.55);
+}
+
+.corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  box-shadow: inset 0 0 0 2px var(--mortar);
+}
+
+.corner-tl {
+  top: 4px;
+  left: 4px;
+}
+
+.corner-tr {
+  top: 4px;
+  right: 4px;
+}
+
+.corner-bl {
+  bottom: 4px;
+  left: 4px;
+}
+
+.corner-br {
+  bottom: 4px;
+  right: 4px;
+}
+
+#game {
+  display: block;
+  image-rendering: pixelated;
+  background: #000;
+}
+
+.hud {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: #202020;
-  color: #e0e0e0;
-  font-family: monospace;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: linear-gradient(180deg, var(--wood), var(--wood-dark));
+  box-shadow:
+    0 0 0 3px var(--mortar),
+    inset 0 0 0 2px var(--wood-light);
+  padding: 8px 14px;
+}
+
+.counters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+  color: var(--parchment);
+  font-variant-numeric: tabular-nums;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  box-shadow: inset 0 0 0 1px var(--mortar);
+}
+
+.swatch.stone {
+  background: #b7c4cf;
+}
+
+.swatch.wood {
+  background: #8a5a34;
+}
+
+.swatch.fish {
+  background: #5aa7cf;
+}
+
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--wood-dark);
+  box-shadow:
+    inset 0 0 0 2px var(--mortar),
+    0 0 0 2px var(--wood-light);
+  color: var(--parchment);
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  border: none;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.sound-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.sound-toggle:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }

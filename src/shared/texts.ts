@@ -14,4 +14,15 @@ export const texts = {
     serverStartFailed: (message: string): string => `Server failed to start: ${message}`,
     invalidSettingsJson: (settingsPath: string): string => `${settingsPath} contains invalid JSON, nothing changed`,
   },
+  client: {
+    title: "CLAUDE VILLAGE",
+    resourceLabel: {
+      stone: "STONE",
+      wood: "WOOD",
+      fish: "FISH",
+    },
+    resourceCounter: (label: string, value: number): string => `${label} ${value}`,
+    soundOn: "SOUND ON",
+    soundOff: "SOUND OFF",
+  },
 };
