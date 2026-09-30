@@ -1,9 +1,9 @@
 import Phaser from "phaser";
+import atlasImageUrl from "../../../sprites/atlas.png?url";
+import atlasJsonUrl from "../../../sprites/atlas.json?url";
 import { RectOccupancy } from "./RectOccupancy.js";
 
 export const SPRITE_ATLAS_KEY = "sprites";
-export const SPRITE_ATLAS_IMAGE_REGISTRY_KEY = "spriteAtlasImage";
-export const SPRITE_ATLAS_JSON_REGISTRY_KEY = "spriteAtlasJson";
 
 const WORLD_WIDTH = 320;
 const WORLD_HEIGHT = 180;
@@ -14,11 +14,11 @@ export class VillageScene extends Phaser.Scene {
     super("village");
   }
 
-  public create(): void {
-    const atlasImage = this.registry.get(SPRITE_ATLAS_IMAGE_REGISTRY_KEY) as HTMLImageElement;
-    const atlasJson = this.registry.get(SPRITE_ATLAS_JSON_REGISTRY_KEY);
-    this.textures.addAtlas(SPRITE_ATLAS_KEY, atlasImage, atlasJson);
+  public preload(): void {
+    this.load.atlas(SPRITE_ATLAS_KEY, atlasImageUrl, atlasJsonUrl);
+  }
 
+  public create(): void {
     const occupancy = new RectOccupancy();
 
     for (let x = 0; x < WORLD_WIDTH; x += 8) {

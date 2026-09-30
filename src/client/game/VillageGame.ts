@@ -1,13 +1,13 @@
 import Phaser from "phaser";
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../world/WorldMap.js";
-import { SPRITE_ATLAS_IMAGE_REGISTRY_KEY, SPRITE_ATLAS_JSON_REGISTRY_KEY, VillageScene } from "./VillageScene.js";
+import { VillageScene } from "./VillageScene.js";
 
 const MAX_ZOOM = 3;
 
 export class VillageGame {
   private readonly game: Phaser.Game;
 
-  public constructor(parent: HTMLElement, atlasImage: HTMLImageElement, atlasJson: unknown) {
+  public constructor(parent: HTMLElement) {
     this.game = new Phaser.Game({
       type: Phaser.AUTO,
       parent,
@@ -21,8 +21,6 @@ export class VillageGame {
       },
       scene: [VillageScene],
     });
-    this.game.registry.set(SPRITE_ATLAS_IMAGE_REGISTRY_KEY, atlasImage);
-    this.game.registry.set(SPRITE_ATLAS_JSON_REGISTRY_KEY, atlasJson);
   }
 
   public resize(availableWidth: number, availableHeight: number): void {
