@@ -13,9 +13,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "npm run sprites:export && tsc -p tsconfig.json && vite build",
+    "build": "tsc -p tsconfig.json && vite build",
     "dev:server": "tsx watch bin/claude-village.ts start",
-    "dev:client": "npm run sprites:export && vite",
+    "dev:client": "vite",
     "dev:sandbox": "tsx scripts/sandbox.ts",
     "sprites:export": "tsx scripts/exportSprites.ts",
     "test": "tsx --test test/**/*.test.ts",
