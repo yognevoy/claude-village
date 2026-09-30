@@ -97,8 +97,7 @@ body {
 
 #game {
   display: block;
-  image-rendering: pixelated;
-  background: #000;
+  line-height: 0;
 }
 
 .hud {
