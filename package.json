@@ -13,10 +13,11 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && vite build",
+    "build": "npm run sprites:export && tsc -p tsconfig.json && vite build",
     "dev:server": "tsx watch bin/claude-village.ts start",
-    "dev:client": "vite",
+    "dev:client": "npm run sprites:export && vite",
     "dev:sandbox": "tsx scripts/sandbox.ts",
+    "sprites:export": "tsx scripts/exportSprites.ts",
     "test": "tsx --test test/**/*.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:client": "tsc -p src/client/tsconfig.json"
@@ -25,6 +26,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^22.10.2",
     "@types/seedrandom": "^3.0.8",
+    "canvas": "^3.2.3",
     "eventsource": "^5.1.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
