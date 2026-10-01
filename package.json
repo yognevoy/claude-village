@@ -17,7 +17,7 @@
     "dev:server": "tsx watch bin/claude-village.ts start",
     "dev:client": "vite",
     "dev:sandbox": "tsx scripts/sandbox.ts",
-    "sprites:export": "tsx scripts/exportSprites.ts",
+    "sprites:export": "tsx scripts/vendor/exportSprites.ts",
     "test": "tsx --test test/**/*.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:client": "tsc -p src/client/tsconfig.json"
