@@ -11,6 +11,7 @@ import {
   TAVERN_TERRACE_SEATS,
   WORLD_HEIGHT,
   WORLD_WIDTH,
+  rectContainsPoint,
 } from "../src/client/world/WorldMap.js";
 
 function withinBounds(points: readonly { x: number; y: number }[]): boolean {
@@ -35,4 +36,13 @@ test("all anchor points sit within the world bounds", () => {
   assert.ok(withinBounds(RIVER_SLOTS));
   assert.ok(withinBounds(CAMPFIRE_SEATS));
   assert.ok(withinBounds(TAVERN_TERRACE_SEATS));
+});
+
+test("rectContainsPoint treats the rect as half-open", () => {
+  const rect = { x: 10, y: 10, width: 4, height: 4 };
+  assert.equal(rectContainsPoint(rect, 10, 10), true);
+  assert.equal(rectContainsPoint(rect, 13, 13), true);
+  assert.equal(rectContainsPoint(rect, 14, 10), false);
+  assert.equal(rectContainsPoint(rect, 10, 14), false);
+  assert.equal(rectContainsPoint(rect, 9, 10), false);
 });

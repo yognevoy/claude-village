@@ -12,52 +12,57 @@ export interface Rect {
   readonly height: number;
 }
 
+export function rectContainsPoint(rect: Rect, x: number, y: number): boolean {
+  return x >= rect.x && x < rect.x + rect.width && y >= rect.y && y < rect.y + rect.height;
+}
+
 export const WORLD_WIDTH = 320;
 export const WORLD_HEIGHT = 180;
 
-export const TOWN_HALL: Rect = { x: 124, y: 4, width: 58, height: 36 };
-export const TOWN_HALL_SPAWN: Point = { x: 153, y: 42 };
+export const TILE_SIZE = 8;
+export const MAP_COLS = Math.ceil(WORLD_WIDTH / TILE_SIZE);
+export const MAP_ROWS = Math.ceil(WORLD_HEIGHT / TILE_SIZE);
 
-export const MINE: Rect = { x: 14, y: 18, width: 60, height: 44 };
-export const MINE_SLOTS: readonly Point[] = [
-  { x: 20, y: 62 },
-  { x: 36, y: 64 },
-  { x: 52, y: 62 },
-  { x: 66, y: 58 },
-];
+export const TOWN_HALL: Rect = { x: 136, y: 48, width: 28, height: 28 };
+export const TOWN_HALL_SPAWN: Point = { x: 148, y: 78 };
 
-export const FOREST: Rect = { x: 12, y: 96, width: 60, height: 48 };
-export const SAWMILL: Rect = { x: 24, y: 150, width: 28, height: 18 };
-export const FOREST_SLOTS: readonly Point[] = [
-  { x: 16, y: 100 },
-  { x: 44, y: 96 },
-  { x: 16, y: 132 },
-  { x: 56, y: 120 },
-];
-
-export const RIVER: Rect = { x: 250, y: 0, width: 40, height: WORLD_HEIGHT };
-export const RIVER_SLOTS: readonly Point[] = [
-  { x: 246, y: 20 },
-  { x: 246, y: 60 },
-  { x: 246, y: 100 },
-  { x: 246, y: 140 },
-];
-
-export const CAMPFIRE: Rect = { x: 144, y: 82, width: 14, height: 12 };
+export const CAMPFIRE: Rect = { x: 143, y: 82, width: 10, height: 12 };
 export const CAMPFIRE_SEATS: readonly Point[] = [
-  { x: 136, y: 88 },
-  { x: 164, y: 88 },
-  { x: 150, y: 74 },
-  { x: 150, y: 100 },
+  { x: 134, y: 90 },
+  { x: 162, y: 90 },
+  { x: 142, y: 104 },
+  { x: 154, y: 104 },
 ];
 
-export const TAVERN: Rect = { x: 190, y: 130, width: 50, height: 34 };
-export const TAVERN_TERRACE: Rect = { x: 244, y: 150, width: 24, height: 16 };
+export const MINE: Rect = { x: 16, y: 16, width: 64, height: 48 };
+export const MINE_SLOTS: readonly Point[] = [
+  { x: 18, y: 68 },
+  { x: 38, y: 70 },
+  { x: 60, y: 68 },
+  { x: 78, y: 40 },
+];
+
+export const FOREST: Rect = { x: 16, y: 122, width: 80, height: 54 };
+export const FOREST_SLOTS: readonly Point[] = [
+  { x: 18, y: 124 },
+  { x: 92, y: 128 },
+  { x: 18, y: 172 },
+  { x: 70, y: 150 },
+];
+
+export const RIVER_SLOTS: readonly Point[] = [
+  { x: 254, y: 36 },
+  { x: 254, y: 156 },
+  { x: 208, y: 96 },
+  { x: 300, y: 96 },
+];
+
+export const TAVERN_TERRACE: Rect = { x: 228, y: 160, width: 50, height: 18 };
 export const TAVERN_TERRACE_SEATS: readonly Point[] = [
-  { x: 246, y: 154 },
-  { x: 260, y: 154 },
-  { x: 246, y: 164 },
+  { x: 232, y: 164 },
   { x: 260, y: 164 },
+  { x: 232, y: 174 },
+  { x: 260, y: 174 },
 ];
 
 export const SPOT_SLOTS: Readonly<Record<SpotType, readonly Point[]>> = {
