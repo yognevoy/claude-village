@@ -1,4 +1,4 @@
-import { tileVariant } from "../../shared/tileVariant.js";
+import { tileVariant } from "../../shared/tileRandom.js";
 
 const TILE_SIZE = 18;
 const STONE_COLORS = ["#332b24", "#2b241f", "#3a3128"];
