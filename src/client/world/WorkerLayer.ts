@@ -33,7 +33,7 @@ export class WorkerLayer {
   }
 
   public update(worker: WorkerState): void {
-    if (worker.removed || worker.phase === WorkerPhase.Gone) {
+    if (worker.removed || !WorkerLayer.isVisible(worker)) {
       this.remove(worker.sessionId);
       return;
     }
@@ -41,7 +41,16 @@ export class WorkerLayer {
     this.place(worker, false);
   }
 
+  private static isVisible(worker: WorkerState): boolean {
+    return worker.phase !== WorkerPhase.Queued && worker.phase !== WorkerPhase.Gone;
+  }
+
   private place(worker: WorkerState, instant: boolean): void {
+    if (!WorkerLayer.isVisible(worker)) {
+      this.remove(worker.sessionId);
+      return;
+    }
+
     this.latestWorkers.set(worker.sessionId, worker);
     const target = this.placement.place(worker);
 
