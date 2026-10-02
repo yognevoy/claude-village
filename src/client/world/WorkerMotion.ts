@@ -8,7 +8,8 @@ export class WorkerMotion {
 
   public constructor(
     private readonly scene: Phaser.Scene,
-    private readonly sprite: Phaser.GameObjects.Sprite,
+    private readonly container: Phaser.GameObjects.Container,
+    private readonly body: Phaser.GameObjects.Sprite,
   ) {}
 
   public isMoving(): boolean {
@@ -18,12 +19,12 @@ export class WorkerMotion {
   public moveTo(target: Point, walkAnimKey: string, onArrive: () => void): void {
     this.tween?.stop();
 
-    const distance = Phaser.Math.Distance.Between(this.sprite.x, this.sprite.y, target.x, target.y);
+    const distance = Phaser.Math.Distance.Between(this.container.x, this.container.y, target.x, target.y);
     const duration = Math.max(1, (distance / SPEED_PX_PER_SEC) * 1000);
 
-    this.sprite.play(walkAnimKey);
+    this.body.play(walkAnimKey);
     this.tween = this.scene.tweens.add({
-      targets: this.sprite,
+      targets: this.container,
       x: target.x,
       y: target.y,
       duration,
