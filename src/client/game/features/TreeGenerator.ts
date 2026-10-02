@@ -6,7 +6,6 @@ import {
   MINE,
   Point,
   Rect,
-  TAVERN_TERRACE,
   TILE_SIZE,
   TOWN_HALL,
   WORLD_HEIGHT,
@@ -24,7 +23,7 @@ const ACCENT_TREE_DENSITY = 0.08;
 const TREE_JITTER = 6;
 const LAKE_NORTH_KEEPOUT: Rect = { x: 175, y: 0, width: 145, height: 44 };
 const LAKE_SOUTH_KEEPOUT: Rect = { x: 160, y: 148, width: 160, height: 32 };
-const TREE_EXCLUDED_RECTS: readonly Rect[] = [TOWN_HALL, CAMPFIRE, MINE, TAVERN_TERRACE, LAKE_NORTH_KEEPOUT, LAKE_SOUTH_KEEPOUT];
+const TREE_EXCLUDED_RECTS: readonly Rect[] = [TOWN_HALL, CAMPFIRE, MINE, LAKE_NORTH_KEEPOUT, LAKE_SOUTH_KEEPOUT];
 
 const CORNER_TREE_SEEDS: readonly Point[] = [
   { x: 270, y: 4 },

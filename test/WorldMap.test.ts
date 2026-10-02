@@ -8,7 +8,6 @@ import {
   FOREST_SLOTS,
   RIVER_SLOTS,
   SPOT_SLOTS,
-  TAVERN_TERRACE_SEATS,
   WORLD_HEIGHT,
   WORLD_WIDTH,
   rectContainsPoint,
@@ -35,7 +34,6 @@ test("all anchor points sit within the world bounds", () => {
   assert.ok(withinBounds(FOREST_SLOTS));
   assert.ok(withinBounds(RIVER_SLOTS));
   assert.ok(withinBounds(CAMPFIRE_SEATS));
-  assert.ok(withinBounds(TAVERN_TERRACE_SEATS));
 });
 
 test("rectContainsPoint treats the rect as half-open", () => {

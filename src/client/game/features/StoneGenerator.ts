@@ -1,13 +1,13 @@
 import { tileNoise } from "../../../shared/tileRandom.js";
 import { isLakeTile } from "../../world/Lake.js";
-import { CAMPFIRE, FOREST, MAP_COLS, MAP_ROWS, MINE, Rect, TAVERN_TERRACE, TILE_SIZE, TOWN_HALL, rectContainsPoint } from "../../world/WorldMap.js";
+import { CAMPFIRE, FOREST, MAP_COLS, MAP_ROWS, MINE, Rect, TILE_SIZE, TOWN_HALL, rectContainsPoint } from "../../world/WorldMap.js";
 import { RectOccupancy } from "../RectOccupancy.js";
 import { FeatureGenerator } from "./FeatureGenerator.js";
 import { MapObject } from "./MapObject.js";
 
 const STONE_DENSITY = 0.035;
 const STONE_FRAME = "stone:0:0";
-const STONE_EXCLUDED_RECTS: readonly Rect[] = [TOWN_HALL, CAMPFIRE, MINE, FOREST, TAVERN_TERRACE];
+const STONE_EXCLUDED_RECTS: readonly Rect[] = [TOWN_HALL, CAMPFIRE, MINE, FOREST];
 
 export class StoneGenerator implements FeatureGenerator {
   public generate(occupancy: RectOccupancy): MapObject[] {

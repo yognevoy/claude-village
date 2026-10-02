@@ -127,10 +127,6 @@ test("a single worker walks through every event of the CLAUDE.md reaction table 
   scheduler.tick();
   assert.equal(registry.get("s1")?.phase, WorkerPhase.AtCampfire);
 
-  clock.advanceTo(1900 + DEFAULT_CONFIG.idle.tavernAfterSec * 1000);
-  scheduler.tick();
-  assert.equal(registry.get("s1")?.phase, WorkerPhase.AtTavern);
-
   clock.advanceTo(1900 + DEFAULT_CONFIG.idle.vanishAfterSec * 1000);
   scheduler.tick();
   assert.equal(registry.get("s1")?.phase, WorkerPhase.Gone);

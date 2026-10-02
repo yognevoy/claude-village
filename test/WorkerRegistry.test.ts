@@ -134,8 +134,8 @@ test("PostToolUse grows the resource counter for the worker's spot type", () => 
   assert.equal(registry.resourceCounters.get(worker.spotType), 2);
 });
 
-test("a new event wakes a worker from AtCampfire, AtTavern, or Gone back onto its own spot type", () => {
-  for (const phase of [WorkerPhase.AtCampfire, WorkerPhase.AtTavern, WorkerPhase.Gone]) {
+test("a new event wakes a worker from AtCampfire or Gone back onto its own spot type", () => {
+  for (const phase of [WorkerPhase.AtCampfire, WorkerPhase.Gone]) {
     const registry = newRegistry();
     registry.apply(record("SessionStart", "s1", 1000));
 

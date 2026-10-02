@@ -6,7 +6,6 @@ export interface SpotSlotsConfig {
 
 export interface IdleThresholdsConfig {
   campfireAfterSec: number;
-  tavernAfterSec: number;
   vanishAfterSec: number;
 }
 
@@ -36,7 +35,6 @@ export const DEFAULT_CONFIG: Config = {
   },
   idle: {
     campfireAfterSec: 120,
-    tavernAfterSec: 900,
     vanishAfterSec: 10800,
   },
   subagents: {

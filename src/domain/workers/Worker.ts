@@ -63,10 +63,6 @@ export class Worker {
       return WorkerPhase.Gone;
     }
 
-    if (idleSec >= thresholds.tavernAfterSec) {
-      return WorkerPhase.AtTavern;
-    }
-
     if (idleSec >= thresholds.campfireAfterSec) {
       return WorkerPhase.AtCampfire;
     }

@@ -51,14 +51,6 @@ export const RIVER_SLOTS: readonly Point[] = [
   { x: 254, y: 156 },
 ];
 
-export const TAVERN_TERRACE: Rect = { x: 228, y: 160, width: 50, height: 18 };
-export const TAVERN_TERRACE_SEATS: readonly Point[] = [
-  { x: 232, y: 164 },
-  { x: 260, y: 164 },
-  { x: 232, y: 174 },
-  { x: 260, y: 174 },
-];
-
 export const SPOT_SLOTS: Readonly<Record<SpotType, readonly Point[]>> = {
   [SpotType.Mine]: MINE_SLOTS,
   [SpotType.Forest]: FOREST_SLOTS,
