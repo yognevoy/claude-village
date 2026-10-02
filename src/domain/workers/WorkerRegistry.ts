@@ -8,6 +8,7 @@ import { WorkerEventDispatcher } from "./WorkerEventDispatcher.js";
 import type { WorkerLifecycle } from "./WorkerEventDispatcher.js";
 import type { IdleWorkerStore } from "./WorkerIdleScheduler.js";
 import { WorkerPhase } from "./WorkerPhase.js";
+import type { EventResult } from "./EventResult.js";
 
 export class WorkerRegistry implements WorkerLifecycle, IdleWorkerStore {
   private readonly workers = new Map<string, Worker>();
@@ -34,8 +35,8 @@ export class WorkerRegistry implements WorkerLifecycle, IdleWorkerStore {
     return this.workers.get(sessionId);
   }
 
-  public apply(record: EventRecord): void {
-    this.dispatcher.apply(record);
+  public apply(record: EventRecord): EventResult {
+    return this.dispatcher.apply(record);
   }
 
   public spawn(record: EventRecord): Worker {
@@ -73,31 +74,42 @@ export class WorkerRegistry implements WorkerLifecycle, IdleWorkerStore {
     }
   }
 
-  public remove(worker: Worker): void {
-    this.release(worker);
+  public remove(worker: Worker): Worker | null {
+    const promoted = this.release(worker);
     this.workers.delete(worker.sessionId);
+    return promoted;
   }
 
-  public idle(worker: Worker, phase: WorkerPhase): void {
-    this.release(worker);
+  public idle(worker: Worker, phase: WorkerPhase): Worker | null {
+    const promoted = this.release(worker);
     worker.setPhase(phase);
+    return promoted;
   }
 
-  private release(worker: Worker): void {
+  private release(worker: Worker): Worker | null {
     const spot = this.spotSlotRegistry.of(worker.spotType);
 
     if (worker.isAtSpot()) {
       const promotedId = spot.leave(worker.sessionId);
 
-      if (promotedId !== null) {
-        const promoted = this.workers.get(promotedId);
-
-        if (promoted !== undefined) {
-          promoted.setPhase(WorkerPhase.AtSpot);
-        }
+      if (promotedId === null) {
+        return null;
       }
-    } else if (worker.isQueued()) {
+
+      const promoted = this.workers.get(promotedId);
+
+      if (promoted === undefined) {
+        return null;
+      }
+
+      promoted.setPhase(WorkerPhase.AtSpot);
+      return promoted;
+    }
+
+    if (worker.isQueued()) {
       spot.cancel(worker.sessionId);
     }
+
+    return null;
   }
 }

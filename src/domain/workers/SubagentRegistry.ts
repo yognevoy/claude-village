@@ -9,14 +9,18 @@ export class SubagentRegistry {
     this.lastEventAt.delete(agentId);
   }
 
-  public pruneIdle(now: number, idleSec: number): void {
+  public pruneIdle(now: number, idleSec: number): boolean {
     const idleMs = idleSec * 1000;
+    let pruned = false;
 
     for (const [agentId, lastEventAt] of this.lastEventAt) {
       if (now - lastEventAt >= idleMs) {
         this.lastEventAt.delete(agentId);
+        pruned = true;
       }
     }
+
+    return pruned;
   }
 
   public count(): number {

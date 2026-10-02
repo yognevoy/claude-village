@@ -27,8 +27,10 @@ class FakeWorkerLifecycle implements WorkerLifecycle {
     this.wakeCalls.push(worker.sessionId);
   }
 
-  public remove(worker: Worker): void {
+  public remove(worker: Worker): Worker | null {
     this.removeCalls.push(worker.sessionId);
+    this.workers.delete(worker.sessionId);
+    return null;
   }
 }
 
@@ -174,9 +176,10 @@ test("SessionEnd removes the worker", () => {
   const dispatcher = new WorkerEventDispatcher(registry, new ResourceCounters());
   registry.spawn(record("SessionStart", "s1", 1000));
 
-  dispatcher.apply(record("SessionEnd", "s1", 1100));
+  const { promoted } = dispatcher.apply(record("SessionEnd", "s1", 1100));
 
   assert.deepEqual(registry.removeCalls, ["s1"]);
+  assert.equal(promoted, null);
 });
 
 test("PermissionRequest from a subagent raises the alert, records the subagent, and wakes the parent", () => {

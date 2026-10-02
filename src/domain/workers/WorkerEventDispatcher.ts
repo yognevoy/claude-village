@@ -2,11 +2,12 @@ import { ClaudeEvent } from "../events/ClaudeEvent.js";
 import type { EventRecord } from "../events/EventRecord.js";
 import type { ResourceCounters } from "../resources/ResourceCounters.js";
 import type { Worker } from "./Worker.js";
+import { EventResult } from "./EventResult.js";
 
 export interface WorkerLifecycle {
   spawn(record: EventRecord): Worker;
   wake(worker: Worker): void;
-  remove(worker: Worker): void;
+  remove(worker: Worker): Worker | null;
 }
 
 export class WorkerEventDispatcher {
@@ -15,47 +16,46 @@ export class WorkerEventDispatcher {
     private readonly resources: ResourceCounters,
   ) {}
 
-  public apply(record: EventRecord): void {
+  public apply(record: EventRecord): EventResult {
     switch (record.event) {
       case ClaudeEvent.SessionStart:
         this.handleSessionStart(record);
-        return;
+        return EventResult.empty();
 
       case ClaudeEvent.UserPromptSubmit:
         this.handleUserPromptSubmit(record);
-        return;
+        return EventResult.empty();
 
       case ClaudeEvent.PreToolUse:
         this.handlePreToolUse(record);
-        return;
+        return EventResult.empty();
 
       case ClaudeEvent.PermissionRequest:
         this.handlePermissionRequest(record);
-        return;
+        return EventResult.empty();
 
       case ClaudeEvent.PostToolUse:
         this.handlePostToolUse(record);
-        return;
+        return EventResult.empty();
 
       case ClaudeEvent.Notification:
         this.handleNotification(record);
-        return;
+        return EventResult.empty();
 
       case ClaudeEvent.Stop:
         this.handleStop(record);
-        return;
+        return EventResult.empty();
 
       case ClaudeEvent.SubagentStart:
         this.handleSubagentStart(record);
-        return;
+        return EventResult.empty();
 
       case ClaudeEvent.SubagentStop:
         this.handleSubagentStop(record);
-        return;
+        return EventResult.empty();
 
       case ClaudeEvent.SessionEnd:
-        this.handleSessionEnd(record);
-        return;
+        return this.handleSessionEnd(record);
     }
   }
 
@@ -125,10 +125,15 @@ export class WorkerEventDispatcher {
     this.registry.wake(worker);
   }
 
-  private handleSessionEnd(record: EventRecord): void {
+  private handleSessionEnd(record: EventRecord): EventResult {
     const worker = this.registry.spawn(record);
+    const promoted = this.registry.remove(worker);
 
-    this.registry.remove(worker);
+    if (promoted === null) {
+      return EventResult.empty();
+    }
+
+    return new EventResult(promoted);
   }
 
   private handleSubagentStart(record: EventRecord): void {

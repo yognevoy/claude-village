@@ -73,10 +73,11 @@ test("SessionEnd frees the slot and promotes the next queued worker of the same 
   assert.equal(registry.get("s4")?.spotType, SpotType.Mine);
   assert.equal(registry.get("s4")?.phase, WorkerPhase.Queued);
 
-  registry.apply(record("SessionEnd", "s1", 1100));
+  const { promoted } = registry.apply(record("SessionEnd", "s1", 1100));
 
   assert.equal(registry.get("s1"), undefined);
   assert.equal(registry.get("s4")?.phase, WorkerPhase.AtSpot);
+  assert.equal(promoted?.sessionId, "s4");
 });
 
 test("SubagentStart and SubagentStop from an unknown session register a worker without crashing", () => {
@@ -99,10 +100,11 @@ test("idle frees the slot, promotes the next queued worker, and keeps the idle w
 
   const worker = registry.get("s1");
   assert.ok(worker);
-  registry.idle(worker, WorkerPhase.AtCampfire);
+  const promoted = registry.idle(worker, WorkerPhase.AtCampfire);
 
   assert.equal(registry.get("s1")?.phase, WorkerPhase.AtCampfire);
   assert.equal(registry.get("s4")?.phase, WorkerPhase.AtSpot);
+  assert.equal(promoted?.sessionId, "s4");
 });
 
 test("idle on a queued worker cancels its queue position instead of touching the slot", () => {

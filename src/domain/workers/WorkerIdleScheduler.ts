@@ -5,7 +5,7 @@ import type { WorkerPhase } from "./WorkerPhase.js";
 
 export interface IdleWorkerStore {
   list(): readonly Worker[];
-  idle(worker: Worker, phase: WorkerPhase): void;
+  idle(worker: Worker, phase: WorkerPhase): Worker | null;
 }
 
 export class WorkerIdleScheduler {
@@ -16,22 +16,27 @@ export class WorkerIdleScheduler {
     private readonly subagents: SubagentsConfig,
   ) {}
 
-  public tick(): void {
+  public tick(): readonly Worker[] {
     const now = this.clock.now();
+    const changed = new Set<Worker>();
 
     for (const worker of this.store.list()) {
-      this.evaluate(worker, now);
-      worker.subagents.pruneIdle(now, this.subagents.idleSec);
+      const targetPhase = worker.idlePhaseAt(now, this.thresholds);
+
+      if (targetPhase !== null && worker.phase !== targetPhase) {
+        const promoted = this.store.idle(worker, targetPhase);
+        changed.add(worker);
+
+        if (promoted !== null) {
+          changed.add(promoted);
+        }
+      }
+
+      if (worker.subagents.pruneIdle(now, this.subagents.idleSec)) {
+        changed.add(worker);
+      }
     }
-  }
 
-  private evaluate(worker: Worker, now: number): void {
-    const targetPhase = worker.idlePhaseAt(now, this.thresholds);
-
-    if (targetPhase === null || worker.phase === targetPhase) {
-      return;
-    }
-
-    this.store.idle(worker, targetPhase);
+    return Array.from(changed);
   }
 }
