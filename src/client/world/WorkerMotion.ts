@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import { WorkerAnimations } from "../game/WorkerAnimations.js";
 import type { Point } from "./WorldMap.js";
 
 const SPEED_PX_PER_SEC = 24;
@@ -16,13 +15,13 @@ export class WorkerMotion {
     return this.tween !== undefined;
   }
 
-  public moveTo(target: Point, onArrive: () => void): void {
+  public moveTo(target: Point, walkAnimKey: string, onArrive: () => void): void {
     this.tween?.stop();
 
     const distance = Phaser.Math.Distance.Between(this.sprite.x, this.sprite.y, target.x, target.y);
     const duration = Math.max(1, (distance / SPEED_PX_PER_SEC) * 1000);
 
-    this.sprite.play(WorkerAnimations.walkKey);
+    this.sprite.play(walkAnimKey);
     this.tween = this.scene.tweens.add({
       targets: this.sprite,
       x: target.x,

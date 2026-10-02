@@ -50,7 +50,8 @@ export class WorkerLayer {
 
     if (sprite === undefined || motion === undefined) {
       const spawnPoint = instant ? target : TOWN_HALL_SPAWN;
-      sprite = this.scene.add.sprite(spawnPoint.x, spawnPoint.y, this.atlasKey, WorkerAnimations.standFrame);
+      const initialFrame = WorkerAnimations.idleFrame(worker.spotType);
+      sprite = this.scene.add.sprite(spawnPoint.x, spawnPoint.y, this.atlasKey, initialFrame);
       sprite.setOrigin(0, 0);
       motion = new WorkerMotion(this.scene, sprite);
       this.sprites.set(worker.sessionId, sprite);
@@ -64,20 +65,30 @@ export class WorkerLayer {
     if (hasMoved) {
       this.targets.set(worker.sessionId, target);
       const sessionId = worker.sessionId;
-      motion.moveTo(target, () => this.applyPose(sessionId));
+      motion.moveTo(target, WorkerAnimations.walkKey(worker.spotType), () => this.applyPose(sessionId, true));
       return;
     }
 
     if (!motion.isMoving()) {
-      this.applyPose(worker.sessionId);
+      this.applyPose(worker.sessionId, false);
     }
   }
 
-  private applyPose(sessionId: string): void {
+  private applyPose(sessionId: string, justArrived: boolean): void {
     const sprite = this.sprites.get(sessionId);
     const worker = this.latestWorkers.get(sessionId);
 
     if (sprite === undefined || worker === undefined) {
+      return;
+    }
+
+    if (worker.phase === WorkerPhase.AtCampfire) {
+      if (justArrived) {
+        sprite.play(WorkerAnimations.sitKey(worker.spotType));
+        return;
+      }
+      sprite.anims.stop();
+      sprite.setTexture(this.atlasKey, WorkerAnimations.sitHoldFrame(worker.spotType));
       return;
     }
 
@@ -86,8 +97,7 @@ export class WorkerLayer {
       return;
     }
 
-    sprite.anims.stop();
-    sprite.setTexture(this.atlasKey, WorkerAnimations.standFrame);
+    sprite.play(WorkerAnimations.idleKey(worker.spotType), true);
   }
 
   private remove(sessionId: string): void {
