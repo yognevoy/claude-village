@@ -30,7 +30,7 @@ export const CAMPFIRE: Rect = { x: 143, y: 82, width: 10, height: 12 };
 export const CAMPFIRE_SEATS: readonly Point[] = [
   { x: 134, y: 90 },
   { x: 162, y: 90 },
-  { x: 142, y: 104 },
+  { x: 140, y: 102 },
   { x: 154, y: 104 },
 ];
 
@@ -39,15 +39,15 @@ export const MINE_SLOTS: readonly Point[] = [
   { x: 18, y: 68 },
   { x: 38, y: 70 },
   { x: 60, y: 68 },
-  { x: 78, y: 40 },
+  { x: 64, y: 26 },
 ];
 
 export const FOREST: Rect = { x: 16, y: 122, width: 80, height: 54 };
 export const FOREST_SLOTS: readonly Point[] = [
-  { x: 18, y: 124 },
+  { x: 49, y: 153 },
   { x: 92, y: 128 },
-  { x: 18, y: 172 },
-  { x: 70, y: 150 },
+  { x: 31, y: 159 },
+  { x: 67, y: 153 },
 ];
 
 export const RIVER_SLOTS: readonly Point[] = [
