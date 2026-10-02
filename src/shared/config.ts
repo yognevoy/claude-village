@@ -30,9 +30,9 @@ export interface Config {
 export const DEFAULT_CONFIG: Config = {
   port: 4791,
   spots: {
-    mine: 4,
-    forest: 4,
-    river: 4,
+    mine: 2,
+    forest: 2,
+    river: 2,
   },
   idle: {
     campfireAfterSec: 120,
