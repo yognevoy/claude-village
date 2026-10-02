@@ -1,7 +1,10 @@
 import type { Channel } from "better-sse";
 import type { EventLineReader } from "../repository/EventLineReader.js";
 import type { EventLineParser } from "../../domain/events/EventLineParser.js";
-import type { LatestEventStore } from "../../domain/events/LatestEventStore.js";
+import type { EventRecord } from "../../domain/events/EventRecord.js";
+import type { WorkerRegistry } from "../../domain/workers/WorkerRegistry.js";
+import { WorkerState } from "../../domain/workers/WorkerState.js";
+import { SseEvent } from "../../domain/workers/SseEvent.js";
 
 export class EventStreamPoller {
   private pollTimer: NodeJS.Timeout | undefined;
@@ -9,7 +12,7 @@ export class EventStreamPoller {
   constructor(
     private readonly reader: EventLineReader,
     private readonly parser: EventLineParser,
-    private readonly store: LatestEventStore,
+    private readonly registry: WorkerRegistry,
     private readonly channel: Channel,
     private readonly pollIntervalMs = 1000,
   ) {}
@@ -32,8 +35,28 @@ export class EventStreamPoller {
 
     const records = this.parser.parseLines(lines);
     for (const record of records) {
-      this.store.apply(record);
-      this.channel.broadcast(record, "delta");
+      for (const state of this.deltas(record)) {
+        this.channel.broadcast(state, SseEvent.Delta);
+      }
     }
+  }
+
+  private deltas(record: EventRecord): WorkerState[] {
+    const before = this.registry.get(record.sessionId);
+    const { promoted } = this.registry.apply(record);
+    const after = this.registry.get(record.sessionId);
+    const result: WorkerState[] = [];
+
+    if (after !== undefined) {
+      result.push(WorkerState.from(after));
+    } else if (before !== undefined) {
+      result.push(WorkerState.from(before).asRemoved());
+    }
+
+    if (promoted !== null) {
+      result.push(WorkerState.from(promoted));
+    }
+
+    return result;
   }
 }

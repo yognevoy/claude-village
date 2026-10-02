@@ -8,7 +8,8 @@ import { createChannel } from "better-sse";
 import { EventStreamPoller } from "../src/infrastructure/server/EventStreamPoller.js";
 import { EventLineReader } from "../src/infrastructure/repository/EventLineReader.js";
 import { EventLineParser } from "../src/domain/events/EventLineParser.js";
-import { LatestEventStore } from "../src/domain/events/LatestEventStore.js";
+import { WorkerRegistry } from "../src/domain/workers/WorkerRegistry.js";
+import { DEFAULT_CONFIG } from "../src/shared/config.js";
 
 test("a poll that fails to read the events file does not crash the process", async () => {
   const base = mkdtempSync(join(tmpdir(), "claude-village-poller-test-"));
@@ -16,16 +17,16 @@ test("a poll that fails to read the events file does not crash the process", asy
   mkdirSync(unreadablePath);
 
   try {
-    const store = new LatestEventStore();
+    const registry = new WorkerRegistry(DEFAULT_CONFIG.spots);
     const channel = createChannel();
     const reader = new EventLineReader(unreadablePath, 1_000_000);
-    const poller = new EventStreamPoller(reader, new EventLineParser(), store, channel, 10);
+    const poller = new EventStreamPoller(reader, new EventLineParser(), registry, channel, 10);
 
     poller.start();
     await sleep(50);
     poller.stop();
 
-    assert.deepEqual(store.snapshot(), []);
+    assert.deepEqual(registry.list(), []);
   } finally {
     rmSync(base, { recursive: true, force: true });
   }

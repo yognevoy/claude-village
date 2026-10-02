@@ -6,7 +6,8 @@ import { join } from "node:path";
 import { request, type Server } from "node:http";
 import { createChannel } from "better-sse";
 import { createHttpServer } from "../src/infrastructure/server/http-server.js";
-import { LatestEventStore } from "../src/domain/events/LatestEventStore.js";
+import { WorkerRegistry } from "../src/domain/workers/WorkerRegistry.js";
+import { DEFAULT_CONFIG } from "../src/shared/config.js";
 
 const TEST_PORT = 58217;
 
@@ -32,7 +33,7 @@ function requestWithHost(path: string, hostHeader: string): Promise<number> {
 
 async function startServer(): Promise<{ server: Server; staticDir: string }> {
   const staticDir = mkdtempSync(join(tmpdir(), "claude-village-test-"));
-  const sse = { channel: createChannel(), store: new LatestEventStore(), keepAliveMs: 10000 };
+  const sse = { channel: createChannel(), registry: new WorkerRegistry(DEFAULT_CONFIG.spots), keepAliveMs: 10000 };
   const server = createHttpServer({ port: TEST_PORT, staticDir, sse });
   await new Promise<void>((resolve) => server.once("listening", resolve));
   return { server, staticDir };
@@ -73,7 +74,7 @@ test("GET /healthz returns 403 with a foreign Host (DNS rebinding protection)", 
 test("binding two servers to the same port surfaces EADDRINUSE on the second", async () => {
   const { server: first, staticDir: firstStaticDir } = await startServer();
   const secondStaticDir = mkdtempSync(join(tmpdir(), "claude-village-test-"));
-  const sse = { channel: createChannel(), store: new LatestEventStore(), keepAliveMs: 10000 };
+  const sse = { channel: createChannel(), registry: new WorkerRegistry(DEFAULT_CONFIG.spots), keepAliveMs: 10000 };
   const second = createHttpServer({ port: TEST_PORT, staticDir: secondStaticDir, sse });
   try {
     const error = await new Promise<NodeJS.ErrnoException>((resolve) => {

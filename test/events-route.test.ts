@@ -15,7 +15,8 @@ import { createHttpServer } from "../src/infrastructure/server/http-server.js";
 import { EventStreamPoller } from "../src/infrastructure/server/EventStreamPoller.js";
 import { EventLineReader } from "../src/infrastructure/repository/EventLineReader.js";
 import { EventLineParser } from "../src/domain/events/EventLineParser.js";
-import { LatestEventStore } from "../src/domain/events/LatestEventStore.js";
+import { WorkerRegistry } from "../src/domain/workers/WorkerRegistry.js";
+import { DEFAULT_CONFIG } from "../src/shared/config.js";
 
 const TEST_PORT = 58218;
 const HOST_HEADER = `127.0.0.1:${TEST_PORT}`;
@@ -33,18 +34,18 @@ async function startHarness(pollIntervalMs = 20, keepAliveMs = 20): Promise<Harn
   const eventsFilePath = join(tempDir, "events.ndjson");
   const staticDir = mkdtempSync(join(tmpdir(), "claude-village-events-route-static-"));
 
-  const store = new LatestEventStore();
+  const registry = new WorkerRegistry(DEFAULT_CONFIG.spots);
   const channel = createChannel();
   const poller = new EventStreamPoller(
     new EventLineReader(eventsFilePath, 5_000_000),
     new EventLineParser(),
-    store,
+    registry,
     channel,
     pollIntervalMs,
   );
   poller.start();
 
-  const server = createHttpServer({ port: TEST_PORT, staticDir, sse: { channel, store, keepAliveMs } });
+  const server = createHttpServer({ port: TEST_PORT, staticDir, sse: { channel, registry, keepAliveMs } });
   await new Promise<void>((resolve) => server.once("listening", resolve));
 
   return { server, poller, eventsFilePath, tempDir };
@@ -140,7 +141,7 @@ test("appending a line to events.ndjson produces a delta", async () => {
     const data = await waitForNamedEvent(source, "delta");
     const parsed = JSON.parse(data);
     assert.equal(parsed.sessionId, "s1");
-    assert.equal(parsed.event, "Stop");
+    assert.equal(parsed.hasQuestion, true);
     assert.equal(parsed.projectName, "project");
   } finally {
     source.close();

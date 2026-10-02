@@ -2,9 +2,12 @@ import { Command } from "commander";
 import { createChannel } from "better-sse";
 import { createHttpServer } from "../../server/http-server.js";
 import { EventStreamPoller } from "../../server/EventStreamPoller.js";
+import { WorkerIdlePoller } from "../../server/WorkerIdlePoller.js";
 import { EventLineReader } from "../../repository/EventLineReader.js";
 import { EventLineParser } from "../../../domain/events/EventLineParser.js";
-import { LatestEventStore } from "../../../domain/events/LatestEventStore.js";
+import { WorkerRegistry } from "../../../domain/workers/WorkerRegistry.js";
+import { WorkerIdleScheduler } from "../../../domain/workers/WorkerIdleScheduler.js";
+import { SystemClock } from "../../../domain/workers/Clock.js";
 import { DEFAULT_CONFIG, DEFAULT_HOST } from "../../../shared/config.js";
 import { texts } from "../../../shared/texts.js";
 
@@ -26,18 +29,27 @@ export function createStartCommand(staticDir: string): Command {
     .action((options: { port?: string }) => {
       const port = resolvePort(options.port);
 
-      const store = new LatestEventStore();
+      const registry = new WorkerRegistry(DEFAULT_CONFIG.spots);
       const channel = createChannel();
       const reader = new EventLineReader();
       const parser = new EventLineParser();
-      const poller = new EventStreamPoller(reader, parser, store, channel);
+      const poller = new EventStreamPoller(reader, parser, registry, channel);
       poller.start();
+
+      const idleScheduler = new WorkerIdleScheduler(
+        registry,
+        new SystemClock(),
+        DEFAULT_CONFIG.idle,
+        DEFAULT_CONFIG.subagents,
+      );
+      const idlePoller = new WorkerIdlePoller(idleScheduler, channel);
+      idlePoller.start();
 
       const server = createHttpServer({
         port,
         host: DEFAULT_HOST,
         staticDir,
-        sse: { channel, store, keepAliveMs: SSE_KEEP_ALIVE_MS },
+        sse: { channel, registry, keepAliveMs: SSE_KEEP_ALIVE_MS },
       });
 
       server.once("listening", () => {
@@ -46,6 +58,7 @@ export function createStartCommand(staticDir: string): Command {
 
       server.once("error", (error: NodeJS.ErrnoException) => {
         poller.stop();
+        idlePoller.stop();
         if (error.code === "EADDRINUSE") {
           console.log(texts.cli.portInUse(port));
         } else {
