@@ -1,4 +1,8 @@
 <p align="center">
+  <img alt="Claude Village" src=".github/assets/banner.png" width="398">
+</p>
+
+<p align="center">
   <b>Watch all your Claude Code sessions work as a pixel-art village.</b><br>
   Every session becomes a worker. You see at a glance who is busy, who is waiting for you, and who has gone to rest.<br>
   Local, read-only, driven entirely by Claude Code hooks.
