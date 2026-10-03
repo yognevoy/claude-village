@@ -9,8 +9,7 @@ export class App {
 
   public start(): void {
     const background = new PageBackground(this.elements.backgroundCanvasEl);
-    const game = new VillageGame(this.elements.gameContainerEl);
-    new HudPanel(
+    const hud = new HudPanel(
       this.elements.titleEl,
       this.elements.stoneCounterEl,
       this.elements.woodCounterEl,
@@ -18,6 +17,7 @@ export class App {
       this.elements.soundButtonEl,
       this.elements.soundLabelEl,
     );
+    const game = new VillageGame(this.elements.gameContainerEl, hud);
     new WindowManager(this.elements, background, game).init();
   }
 }

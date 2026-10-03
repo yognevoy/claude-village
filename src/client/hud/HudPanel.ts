@@ -1,3 +1,4 @@
+import type { ResourceTotalsView } from "../net/EventStream.js";
 import { texts } from "../../shared/texts.js";
 
 export class HudPanel {
@@ -12,19 +13,19 @@ export class HudPanel {
     private readonly soundLabelEl: HTMLElement,
   ) {
     this.titleEl.textContent = texts.client.title;
-    this.setCounters(0, 0, 0);
+    this.setTotals({ mine: 0, forest: 0, river: 0 });
     this.updateSoundLabel();
     this.soundButtonEl.addEventListener("click", () => {
       this.toggleSound();
     });
   }
 
-  public setCounters(stone: number, wood: number, fish: number): void {
+  public setTotals(totals: ResourceTotalsView): void {
     const { resourceLabel, resourceCounter } = texts.client;
 
-    this.stoneCounterEl.textContent = resourceCounter(resourceLabel.stone, stone);
-    this.woodCounterEl.textContent = resourceCounter(resourceLabel.wood, wood);
-    this.fishCounterEl.textContent = resourceCounter(resourceLabel.fish, fish);
+    this.stoneCounterEl.textContent = resourceCounter(resourceLabel.stone, totals.mine);
+    this.woodCounterEl.textContent = resourceCounter(resourceLabel.wood, totals.forest);
+    this.fishCounterEl.textContent = resourceCounter(resourceLabel.fish, totals.river);
   }
 
   private toggleSound(): void {

@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import type { HudPanel } from "../hud/HudPanel.js";
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../world/WorldMap.js";
 import { VillageScene } from "./VillageScene.js";
 
@@ -7,7 +8,9 @@ const MAX_ZOOM = 3;
 export class VillageGame {
   private readonly game: Phaser.Game;
 
-  public constructor(parent: HTMLElement) {
+  public constructor(parent: HTMLElement, hud: HudPanel) {
+    const scene = new VillageScene(hud);
+
     this.game = new Phaser.Game({
       type: Phaser.AUTO,
       parent,
@@ -19,7 +22,7 @@ export class VillageGame {
         mode: Phaser.Scale.NONE,
         zoom: 1,
       },
-      scene: [VillageScene],
+      scene: [scene],
     });
   }
 
