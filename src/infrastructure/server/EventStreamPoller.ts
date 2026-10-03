@@ -5,6 +5,7 @@ import type { EventRecord } from "../../domain/events/EventRecord.js";
 import type { WorkerRegistry } from "../../domain/workers/WorkerRegistry.js";
 import { WorkerState } from "../../domain/workers/WorkerState.js";
 import { SseEvent } from "../../domain/workers/SseEvent.js";
+import { ResourceTotals } from "../../domain/resources/ResourceTotals.js";
 
 export class EventStreamPoller {
   private pollTimer: NodeJS.Timeout | undefined;
@@ -35,8 +36,16 @@ export class EventStreamPoller {
 
     const records = this.parser.parseLines(lines);
     for (const record of records) {
+      const totalsBefore = ResourceTotals.from(this.registry.resourceCounters);
+
       for (const state of this.deltas(record)) {
         this.channel.broadcast(state, SseEvent.Delta);
+      }
+
+      const totalsAfter = ResourceTotals.from(this.registry.resourceCounters);
+
+      if (!totalsAfter.equals(totalsBefore)) {
+        this.channel.broadcast(totalsAfter, SseEvent.Resources);
       }
     }
   }

@@ -6,6 +6,7 @@ import { SseEvent } from "../../domain/workers/SseEvent.js";
 import { createHostGuard } from "./middleware/host-guard.js";
 import type { WorkerRegistry } from "../../domain/workers/WorkerRegistry.js";
 import { WorkerState } from "../../domain/workers/WorkerState.js";
+import { ResourceTotals } from "../../domain/resources/ResourceTotals.js";
 
 export interface HttpServerOptions {
   port: number;
@@ -30,6 +31,9 @@ export function createHttpServer(options: HttpServerOptions): Server {
     const session = await createSession(req, res, { keepAlive: keepAliveMs });
     channel.register(session);
     session.push(registry.list().map((worker) => WorkerState.from(worker)), SseEvent.Snapshot);
+
+    const totals = ResourceTotals.from(registry.resourceCounters);
+    session.push(totals, SseEvent.Resources);
   });
 
   app.use(express.static(options.staticDir));

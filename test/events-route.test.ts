@@ -149,6 +149,36 @@ test("appending a line to events.ndjson produces a delta", async () => {
   }
 });
 
+test("a fresh connection receives zero resource totals", async () => {
+  const harness = await startHarness();
+  const source = new EventSource(`${BASE_URL}/events`);
+  try {
+    const resourcesData = waitForNamedEvent(source, "resources");
+    const data = await resourcesData;
+
+    assert.deepEqual(JSON.parse(data), { mine: 0, forest: 0, river: 0 });
+  } finally {
+    source.close();
+    await stopHarness(harness);
+  }
+});
+
+test("a PostToolUse line broadcasts updated resource totals", async () => {
+  const harness = await startHarness();
+  const source = new EventSource(`${BASE_URL}/events`);
+  try {
+    await waitForNamedEvent(source, "snapshot");
+    appendEventLine(harness.eventsFilePath, { sessionId: "s1", event: "PostToolUse", toolName: "Bash" });
+    const data = await waitForNamedEvent(source, "resources");
+    const parsed = JSON.parse(data) as { mine: number; forest: number; river: number };
+
+    assert.equal(parsed.mine + parsed.forest + parsed.river, 1);
+  } finally {
+    source.close();
+    await stopHarness(harness);
+  }
+});
+
 test("a keep-alive comment arrives within the configured interval", async () => {
   const harness = await startHarness(20, 20);
   try {
