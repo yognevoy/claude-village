@@ -13,6 +13,13 @@ const BODY_SIZE_PX = 8;
 const FIGURE_CENTER_X_PX = 2.5;
 const SIGN_GAP_PX = 1;
 const LIFT_DURATION_MS = 150;
+const TOOLTIP_GAP_PX = 2;
+
+export interface WorkerPointerListener {
+  onHoverStart(sessionId: string): void;
+  onHoverEnd(sessionId: string): void;
+  onPress(sessionId: string): void;
+}
 
 export class WorkerView {
   private readonly container: Phaser.GameObjects.Container;
@@ -24,6 +31,7 @@ export class WorkerView {
   private readonly lift = { value: 0 };
   private liftTarget = 0;
   private target: Point;
+  private state: WorkerState | undefined;
 
   public constructor(
     scene: Phaser.Scene,
@@ -31,9 +39,24 @@ export class WorkerView {
     spawnPoint: Point,
     spotType: SpotType,
     label: WorkerLabel,
+    private readonly sessionId: string,
+    private readonly pointer: WorkerPointerListener,
   ) {
     this.body = scene.add.sprite(0, 0, atlasKey, WorkerAnimations.idleFrame(spotType));
     this.body.setOrigin(0, 0);
+    this.body.setInteractive(
+      new Phaser.Geom.Rectangle(0, 0, BODY_SIZE_PX, BODY_SIZE_PX),
+      Phaser.Geom.Rectangle.Contains,
+    );
+    this.body.on(Phaser.Input.Events.GAMEOBJECT_POINTER_OVER, () => {
+      this.pointer.onHoverStart(this.sessionId);
+    });
+    this.body.on(Phaser.Input.Events.GAMEOBJECT_POINTER_OUT, () => {
+      this.pointer.onHoverEnd(this.sessionId);
+    });
+    this.body.on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, () => {
+      this.pointer.onPress(this.sessionId);
+    });
 
     this.sign = new WorkerSign(scene, atlasKey, FIGURE_CENTER_X_PX, -SIGN_GAP_PX);
     this.label = label;
@@ -44,7 +67,12 @@ export class WorkerView {
     this.target = spawnPoint;
   }
 
+  public get currentState(): WorkerState | undefined {
+    return this.state;
+  }
+
   public syncState(worker: WorkerState, target: Point): void {
+    this.state = worker;
     this.sign.update(worker);
     this.label.update(worker);
 
@@ -70,6 +98,13 @@ export class WorkerView {
     };
 
     this.label.moveTo(overlay.toPagePoint(anchor));
+  }
+
+  public tooltipAnchor(): Point {
+    return {
+      x: this.container.x + BODY_SIZE_PX + TOOLTIP_GAP_PX,
+      y: this.container.y,
+    };
   }
 
   public destroy(): void {

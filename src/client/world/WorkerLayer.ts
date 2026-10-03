@@ -3,18 +3,27 @@ import { WorkerPhase } from "../../domain/workers/WorkerPhase.js";
 import type { WorkerState } from "../../domain/workers/WorkerState.js";
 import type { NameTagOverlay } from "./NameTagOverlay.js";
 import { WorkerPlacement } from "./WorkerPlacement.js";
+import type { WorkerPointerListener } from "./WorkerView.js";
 import { WorkerView } from "./WorkerView.js";
+import { WorkerTooltip } from "./WorkerTooltip.js";
+import { WorkerTooltipText } from "./WorkerTooltipText.js";
 import { TOWN_HALL_SPAWN } from "./WorldMap.js";
 
-export class WorkerLayer {
+export class WorkerLayer implements WorkerPointerListener {
   private readonly placement = new WorkerPlacement();
   private readonly views = new Map<string, WorkerView>();
+  private readonly tooltip: WorkerTooltip;
+  private readonly tooltipText = new WorkerTooltipText();
+  private hoveredId: string | undefined;
+  private pinnedId: string | undefined;
 
   public constructor(
     private readonly scene: Phaser.Scene,
     private readonly atlasKey: string,
     private readonly overlay: NameTagOverlay,
-  ) {}
+  ) {
+    this.tooltip = new WorkerTooltip(overlay.root);
+  }
 
   public sync(workers: readonly WorkerState[]): void {
     const sessionIds = new Set(workers.map((worker) => worker.sessionId));
@@ -39,14 +48,45 @@ export class WorkerLayer {
     this.place(worker, false);
   }
 
-  public refresh(): void {
+  public refresh(nowMs: number): void {
     for (const view of this.views.values()) {
       view.placeOverlays(this.overlay);
     }
+
+    this.refreshTooltip(nowMs);
+  }
+
+  public onHoverStart(sessionId: string): void {
+    this.hoveredId = sessionId;
+  }
+
+  public onHoverEnd(sessionId: string): void {
+    if (this.hoveredId === sessionId) {
+      this.hoveredId = undefined;
+    }
+  }
+
+  public onPress(sessionId: string): void {
+    this.pinnedId = this.pinnedId === sessionId ? undefined : sessionId;
   }
 
   private static isVisible(worker: WorkerState): boolean {
     return worker.phase !== WorkerPhase.Queued && worker.phase !== WorkerPhase.Gone;
+  }
+
+  private refreshTooltip(nowMs: number): void {
+    const shownId = this.pinnedId ?? this.hoveredId;
+    const view = shownId === undefined ? undefined : this.views.get(shownId);
+    const worker = view?.currentState;
+
+    if (view === undefined || worker === undefined) {
+      this.tooltip.hide();
+      return;
+    }
+
+    const lines = this.tooltipText.lines(worker, nowMs);
+    const point = this.overlay.toPagePoint(view.tooltipAnchor());
+    this.tooltip.show(lines, point);
   }
 
   private place(worker: WorkerState, instant: boolean): void {
@@ -61,7 +101,15 @@ export class WorkerLayer {
     if (view === undefined) {
       const spawnPoint = instant ? target : TOWN_HALL_SPAWN;
       const label = this.overlay.createLabel();
-      view = new WorkerView(this.scene, this.atlasKey, spawnPoint, worker.spotType, label);
+      view = new WorkerView(
+        this.scene,
+        this.atlasKey,
+        spawnPoint,
+        worker.spotType,
+        label,
+        worker.sessionId,
+        this,
+      );
       this.views.set(worker.sessionId, view);
     }
 
@@ -72,5 +120,13 @@ export class WorkerLayer {
     this.placement.release(sessionId);
     this.views.get(sessionId)?.destroy();
     this.views.delete(sessionId);
+
+    if (this.hoveredId === sessionId) {
+      this.hoveredId = undefined;
+    }
+
+    if (this.pinnedId === sessionId) {
+      this.pinnedId = undefined;
+    }
   }
 }

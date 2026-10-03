@@ -5,7 +5,7 @@ export class NameTagOverlay {
   private canvas: HTMLCanvasElement | undefined;
 
   public constructor(
-    private readonly root: HTMLElement,
+    public readonly root: HTMLElement,
     private readonly gameContainer: HTMLElement,
   ) {}
 

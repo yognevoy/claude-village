@@ -24,5 +24,20 @@ export const texts = {
     resourceCounter: (label: string, value: number): string => `${label} ${value}`,
     soundOn: "SOUND ON",
     soundOff: "SOUND OFF",
+    tooltip: {
+      status: {
+        needsPermission: "waiting for permission",
+        needsReply: "waiting for reply",
+        resting: "resting at campfire",
+        working: "working",
+        idle: "idle at spot",
+      },
+      lastEvent: (ago: string): string => `last event ${ago} ago`,
+      elapsed: {
+        seconds: (value: number): string => `${value}s`,
+        minutes: (value: number): string => `${value}m`,
+        hours: (value: number): string => `${value}h`,
+      },
+    },
   },
 };

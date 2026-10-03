@@ -122,6 +122,18 @@ body {
   white-space: nowrap;
 }
 
+.worker-tooltip {
+  position: absolute;
+  transform: translate(0, -50%);
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--parchment);
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre;
+}
+
 .hud {
   display: flex;
   align-items: center;

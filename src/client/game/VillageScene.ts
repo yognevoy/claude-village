@@ -43,6 +43,6 @@ export class VillageScene extends Phaser.Scene {
   }
 
   public update(): void {
-    this.workerLayer?.refresh();
+    this.workerLayer?.refresh(Date.now());
   }
 }
