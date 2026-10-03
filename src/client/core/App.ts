@@ -1,6 +1,7 @@
 import { VillageGame } from "../game/VillageGame.js";
 import { HudPanel } from "../hud/HudPanel.js";
 import { PageBackground } from "../render/PageBackground.js";
+import { NameTagOverlay } from "../world/NameTagOverlay.js";
 import { PageElements } from "./DomRegistry.js";
 import { WindowManager } from "./WindowManager.js";
 
@@ -17,7 +18,8 @@ export class App {
       this.elements.soundButtonEl,
       this.elements.soundLabelEl,
     );
-    const game = new VillageGame(this.elements.gameContainerEl, hud);
+    const nameTags = new NameTagOverlay(this.elements.nameTagsEl, this.elements.gameContainerEl);
+    const game = new VillageGame(this.elements.gameContainerEl, nameTags, hud);
     new WindowManager(this.elements, background, game).init();
   }
 }

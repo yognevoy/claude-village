@@ -96,8 +96,30 @@ body {
 }
 
 #game {
+  position: relative;
   display: block;
   line-height: 0;
+}
+
+.name-tags {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.name-tag {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 2px));
+  padding: 1px 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffa500;
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .hud {

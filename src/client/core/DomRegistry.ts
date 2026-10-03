@@ -1,6 +1,7 @@
 export interface PageElements {
   readonly backgroundCanvasEl: HTMLCanvasElement;
   readonly gameContainerEl: HTMLElement;
+  readonly nameTagsEl: HTMLElement;
   readonly frameEl: HTMLElement;
   readonly hudEl: HTMLElement;
   readonly titleEl: HTMLElement;
@@ -16,6 +17,7 @@ export class DomRegistry {
     const elements = {
       backgroundCanvasEl: document.querySelector<HTMLCanvasElement>("#background"),
       gameContainerEl: document.querySelector<HTMLElement>("#game"),
+      nameTagsEl: document.querySelector<HTMLElement>("#name-tags"),
       frameEl: document.querySelector<HTMLElement>("#frame"),
       hudEl: document.querySelector<HTMLElement>(".hud"),
       titleEl: document.querySelector<HTMLElement>("#title"),

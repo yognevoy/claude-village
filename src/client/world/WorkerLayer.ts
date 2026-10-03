@@ -1,6 +1,7 @@
 import type Phaser from "phaser";
 import { WorkerPhase } from "../../domain/workers/WorkerPhase.js";
 import type { WorkerState } from "../../domain/workers/WorkerState.js";
+import type { NameTagOverlay } from "./NameTagOverlay.js";
 import { WorkerPlacement } from "./WorkerPlacement.js";
 import { WorkerView } from "./WorkerView.js";
 import { TOWN_HALL_SPAWN } from "./WorldMap.js";
@@ -12,6 +13,7 @@ export class WorkerLayer {
   public constructor(
     private readonly scene: Phaser.Scene,
     private readonly atlasKey: string,
+    private readonly overlay: NameTagOverlay,
   ) {}
 
   public sync(workers: readonly WorkerState[]): void {
@@ -37,6 +39,12 @@ export class WorkerLayer {
     this.place(worker, false);
   }
 
+  public refresh(): void {
+    for (const view of this.views.values()) {
+      view.placeOverlays(this.overlay);
+    }
+  }
+
   private static isVisible(worker: WorkerState): boolean {
     return worker.phase !== WorkerPhase.Queued && worker.phase !== WorkerPhase.Gone;
   }
@@ -52,7 +60,8 @@ export class WorkerLayer {
 
     if (view === undefined) {
       const spawnPoint = instant ? target : TOWN_HALL_SPAWN;
-      view = new WorkerView(this.scene, this.atlasKey, spawnPoint, worker.spotType);
+      const label = this.overlay.createLabel();
+      view = new WorkerView(this.scene, this.atlasKey, spawnPoint, worker.spotType, label);
       this.views.set(worker.sessionId, view);
     }
 
