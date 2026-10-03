@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img alt="Claude Village world with workers at the mine, forest and river" src="src/image.png" width="860">
+  <img alt="Claude Village world with workers at the mine, forest and river" src=".github/assets/claude-village.png" width="860">
 </p>
 
 <p align="center">
