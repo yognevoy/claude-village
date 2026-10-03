@@ -8,6 +8,7 @@ import { WorkerSign } from "./WorkerSign.js";
 import type { Point } from "./WorldMap.js";
 
 const BODY_SIZE_PX = 8;
+const SIGN_ANCHOR_X_PX = 2.5;
 const SIGN_GAP_PX = 2;
 
 export class WorkerView {
@@ -26,7 +27,7 @@ export class WorkerView {
     this.body = scene.add.sprite(0, 0, atlasKey, WorkerAnimations.idleFrame(spotType));
     this.body.setOrigin(0, 0);
 
-    this.sign = new WorkerSign(scene, atlasKey, BODY_SIZE_PX / 2, -SIGN_GAP_PX);
+    this.sign = new WorkerSign(scene, atlasKey, SIGN_ANCHOR_X_PX, -SIGN_GAP_PX);
 
     this.container = scene.add.container(spawnPoint.x, spawnPoint.y, [this.body, this.sign.gameObject]);
     this.motion = new WorkerMotion(scene, this.container, this.body);
