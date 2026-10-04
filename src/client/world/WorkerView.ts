@@ -10,7 +10,7 @@ import { WorkerSign } from "./WorkerSign.js";
 import type { Point } from "./WorldMap.js";
 
 const BODY_SIZE_PX = 8;
-const FIGURE_CENTER_X_PX = 2.5;
+const FIGURE_CENTER_X_PX = 4;
 const SIGN_GAP_PX = 1;
 const LIFT_DURATION_MS = 150;
 const TOOLTIP_GAP_PX = 2;
