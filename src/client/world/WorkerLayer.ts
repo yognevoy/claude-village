@@ -35,7 +35,7 @@ export class WorkerLayer implements WorkerPointerListener {
     }
 
     for (const worker of workers) {
-      this.place(worker, true);
+      this.place(worker);
     }
   }
 
@@ -45,7 +45,7 @@ export class WorkerLayer implements WorkerPointerListener {
       return;
     }
 
-    this.place(worker, false);
+    this.place(worker);
   }
 
   public refresh(nowMs: number): void {
@@ -89,7 +89,7 @@ export class WorkerLayer implements WorkerPointerListener {
     this.tooltip.show(lines, point);
   }
 
-  private place(worker: WorkerState, instant: boolean): void {
+  private place(worker: WorkerState): void {
     if (!WorkerLayer.isVisible(worker)) {
       this.remove(worker.sessionId);
       return;
@@ -99,12 +99,11 @@ export class WorkerLayer implements WorkerPointerListener {
     let view = this.views.get(worker.sessionId);
 
     if (view === undefined) {
-      const spawnPoint = instant ? target : TOWN_HALL_SPAWN;
       const label = this.overlay.createLabel();
       view = new WorkerView(
         this.scene,
         this.atlasKey,
-        spawnPoint,
+        TOWN_HALL_SPAWN,
         worker.spotType,
         label,
         worker.sessionId,
