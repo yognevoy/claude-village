@@ -24,7 +24,7 @@ export const MAP_COLS = Math.ceil(WORLD_WIDTH / TILE_SIZE);
 export const MAP_ROWS = Math.ceil(WORLD_HEIGHT / TILE_SIZE);
 
 export const TOWN_HALL: Rect = { x: 136, y: 48, width: 28, height: 28 };
-export const TOWN_HALL_SPAWN: Point = { x: 148, y: 78 };
+export const TOWN_HALL_SPAWN: Point = { x: 144, y: 68 };
 
 export const CAMPFIRE: Rect = { x: 143, y: 82, width: 10, height: 12 };
 
