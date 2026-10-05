@@ -7,7 +7,7 @@ import type { NameTagOverlay } from "./NameTagOverlay.js";
 import { WorkerMotion } from "./WorkerMotion.js";
 import { WorkerLabel } from "./WorkerLabel.js";
 import { WorkerSign } from "./WorkerSign.js";
-import type { Point } from "./WorldMap.js";
+import { TOWN_HALL_SPAWN, type Point } from "./WorldMap.js";
 
 const BODY_SIZE_PX = 8;
 const FIGURE_CENTER_X_PX = 4;
@@ -37,7 +37,7 @@ export class WorkerView {
     scene: Phaser.Scene,
     private readonly atlasKey: string,
     spawnPoint: Point,
-    spotType: SpotType,
+    private readonly spotType: SpotType,
     label: WorkerLabel,
     private readonly sessionId: string,
     private readonly pointer: WorkerPointerListener,
@@ -71,7 +71,7 @@ export class WorkerView {
     return this.state;
   }
 
-  public syncState(worker: WorkerState, target: Point, onArrive?: () => void): void {
+  public syncState(worker: WorkerState, target: Point): void {
     this.state = worker;
     this.sign.update(worker);
     this.label.update(worker);
@@ -80,17 +80,25 @@ export class WorkerView {
 
     if (hasMoved) {
       this.target = target;
-      this.motion.moveTo(target, WorkerAnimations.walkKey(worker.spotType), () => {
-        this.pose(worker, true);
-        onArrive?.();
-      });
+      this.motion.moveTo(target, WorkerAnimations.walkKey(worker.spotType), () => this.pose(worker, true));
       return;
     }
 
     if (!this.motion.isMoving()) {
       this.pose(worker, false);
-      onArrive?.();
     }
+  }
+
+  public leave(onArrive: () => void): void {
+    const alreadyLeaving = this.motion.isMoving() && this.target === TOWN_HALL_SPAWN;
+
+    if (alreadyLeaving) {
+      return;
+    }
+
+    this.sign.gameObject.setVisible(false);
+    this.target = TOWN_HALL_SPAWN;
+    this.motion.moveTo(TOWN_HALL_SPAWN, WorkerAnimations.walkKey(this.spotType), onArrive);
   }
 
   public placeOverlays(overlay: NameTagOverlay): void {

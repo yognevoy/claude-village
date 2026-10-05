@@ -41,7 +41,7 @@ export class WorkerLayer implements WorkerPointerListener {
 
   public update(worker: WorkerState): void {
     if (worker.removed) {
-      this.remove(worker.sessionId);
+      this.leave(worker.sessionId);
       return;
     }
 
@@ -92,7 +92,7 @@ export class WorkerLayer implements WorkerPointerListener {
     }
 
     if (worker.phase === WorkerPhase.Gone) {
-      this.leave(worker);
+      this.leave(worker.sessionId);
       return;
     }
 
@@ -116,15 +116,9 @@ export class WorkerLayer implements WorkerPointerListener {
     view.syncState(worker, target);
   }
 
-  private leave(worker: WorkerState): void {
-    this.placement.release(worker.sessionId);
-    const view = this.views.get(worker.sessionId);
-
-    if (view === undefined) {
-      return;
-    }
-
-    view.syncState(worker, TOWN_HALL_SPAWN, () => this.remove(worker.sessionId));
+  private leave(sessionId: string): void {
+    this.placement.release(sessionId);
+    this.views.get(sessionId)?.leave(() => this.remove(sessionId));
   }
 
   private remove(sessionId: string): void {
