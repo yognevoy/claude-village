@@ -30,27 +30,27 @@ test("a permission request outranks every other status", () => {
   const text = new WorkerTooltipText();
 
   const lines = text.lines(
-    worker({ phase: WorkerPhase.AtCampfire, isWorking: true, hasAlert: true, hasQuestion: true }),
+    worker({ phase: WorkerPhase.Resting, isWorking: true, hasAlert: true, hasQuestion: true }),
     NOW,
   );
 
   assert.equal(lines[1], "waiting for permission");
 });
 
-test("a question outranks campfire and working", () => {
+test("a question outranks resting and working", () => {
   const text = new WorkerTooltipText();
 
-  const lines = text.lines(worker({ phase: WorkerPhase.AtCampfire, isWorking: true, hasQuestion: true }), NOW);
+  const lines = text.lines(worker({ phase: WorkerPhase.Resting, isWorking: true, hasQuestion: true }), NOW);
 
   assert.equal(lines[1], "waiting for reply");
 });
 
-test("a worker at the campfire reads as resting", () => {
+test("a worker resting on its spot reads as resting", () => {
   const text = new WorkerTooltipText();
 
-  const lines = text.lines(worker({ phase: WorkerPhase.AtCampfire }), NOW);
+  const lines = text.lines(worker({ phase: WorkerPhase.Resting }), NOW);
 
-  assert.equal(lines[1], "resting at campfire");
+  assert.equal(lines[1], "resting on the spot");
 });
 
 test("a working worker at a spot reads as working, an idle one as idle", () => {

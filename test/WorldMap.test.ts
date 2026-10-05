@@ -3,7 +3,6 @@ import { test } from "node:test";
 import { DEFAULT_CONFIG } from "../src/shared/config.js";
 import { SpotType } from "../src/domain/spots/SpotType.js";
 import {
-  CAMPFIRE_SEATS,
   MINE_SLOTS,
   FOREST_SLOTS,
   RIVER_SLOTS,
@@ -33,7 +32,6 @@ test("all anchor points sit within the world bounds", () => {
   assert.ok(withinBounds(MINE_SLOTS));
   assert.ok(withinBounds(FOREST_SLOTS));
   assert.ok(withinBounds(RIVER_SLOTS));
-  assert.ok(withinBounds(CAMPFIRE_SEATS));
 });
 
 test("rectContainsPoint treats the rect as half-open", () => {

@@ -40,7 +40,7 @@ export class WorkerLayer implements WorkerPointerListener {
   }
 
   public update(worker: WorkerState): void {
-    if (worker.removed || !WorkerLayer.isVisible(worker)) {
+    if (worker.removed) {
       this.remove(worker.sessionId);
       return;
     }
@@ -70,10 +70,6 @@ export class WorkerLayer implements WorkerPointerListener {
     this.pinnedId = this.pinnedId === sessionId ? undefined : sessionId;
   }
 
-  private static isVisible(worker: WorkerState): boolean {
-    return worker.phase !== WorkerPhase.Queued && worker.phase !== WorkerPhase.Gone;
-  }
-
   private refreshTooltip(nowMs: number): void {
     const shownId = this.pinnedId ?? this.hoveredId;
     const view = shownId === undefined ? undefined : this.views.get(shownId);
@@ -90,8 +86,13 @@ export class WorkerLayer implements WorkerPointerListener {
   }
 
   private place(worker: WorkerState): void {
-    if (!WorkerLayer.isVisible(worker)) {
+    if (worker.phase === WorkerPhase.Queued) {
       this.remove(worker.sessionId);
+      return;
+    }
+
+    if (worker.phase === WorkerPhase.Gone) {
+      this.leave(worker);
       return;
     }
 
@@ -113,6 +114,17 @@ export class WorkerLayer implements WorkerPointerListener {
     }
 
     view.syncState(worker, target);
+  }
+
+  private leave(worker: WorkerState): void {
+    this.placement.release(worker.sessionId);
+    const view = this.views.get(worker.sessionId);
+
+    if (view === undefined) {
+      return;
+    }
+
+    view.syncState(worker, TOWN_HALL_SPAWN, () => this.remove(worker.sessionId));
   }
 
   private remove(sessionId: string): void {

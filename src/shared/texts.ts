@@ -28,7 +28,7 @@ export const texts = {
       status: {
         needsPermission: "waiting for permission",
         needsReply: "waiting for reply",
-        resting: "resting at campfire",
+        resting: "resting on the spot",
         working: "working",
         idle: "idle at spot",
       },

@@ -71,7 +71,7 @@ export class WorkerView {
     return this.state;
   }
 
-  public syncState(worker: WorkerState, target: Point): void {
+  public syncState(worker: WorkerState, target: Point, onArrive?: () => void): void {
     this.state = worker;
     this.sign.update(worker);
     this.label.update(worker);
@@ -80,12 +80,16 @@ export class WorkerView {
 
     if (hasMoved) {
       this.target = target;
-      this.motion.moveTo(target, WorkerAnimations.walkKey(worker.spotType), () => this.pose(worker, true));
+      this.motion.moveTo(target, WorkerAnimations.walkKey(worker.spotType), () => {
+        this.pose(worker, true);
+        onArrive?.();
+      });
       return;
     }
 
     if (!this.motion.isMoving()) {
       this.pose(worker, false);
+      onArrive?.();
     }
   }
 
@@ -132,7 +136,7 @@ export class WorkerView {
   }
 
   private pose(worker: WorkerState, justArrived: boolean): void {
-    if (worker.phase === WorkerPhase.AtCampfire) {
+    if (worker.phase === WorkerPhase.Resting) {
       if (justArrived) {
         this.body.play(WorkerAnimations.sitKey(worker.spotType));
         return;

@@ -1,7 +1,7 @@
 import { SpotType } from "../../domain/spots/SpotType.js";
 import { WorkerPhase } from "../../domain/workers/WorkerPhase.js";
 import type { WorkerState } from "../../domain/workers/WorkerState.js";
-import { CAMPFIRE_SEATS, SPOT_SLOTS, TOWN_HALL_SPAWN, type Point } from "./WorldMap.js";
+import { SPOT_SLOTS, TOWN_HALL_SPAWN, type Point } from "./WorldMap.js";
 
 interface Assignment {
   readonly poolKey: string;
@@ -9,7 +9,6 @@ interface Assignment {
 }
 
 const POOLS = new Map<string, readonly Point[]>([
-  [WorkerPhase.AtCampfire, CAMPFIRE_SEATS],
   [`${WorkerPhase.AtSpot}:${SpotType.Mine}`, SPOT_SLOTS[SpotType.Mine]],
   [`${WorkerPhase.AtSpot}:${SpotType.Forest}`, SPOT_SLOTS[SpotType.Forest]],
   [`${WorkerPhase.AtSpot}:${SpotType.River}`, SPOT_SLOTS[SpotType.River]],
@@ -53,12 +52,8 @@ export class WorkerPlacement {
   }
 
   private keyFor(worker: WorkerState): string | null {
-    if (worker.phase === WorkerPhase.AtSpot) {
+    if (worker.phase === WorkerPhase.AtSpot || worker.phase === WorkerPhase.Resting) {
       return `${WorkerPhase.AtSpot}:${worker.spotType}`;
-    }
-
-    if (worker.phase === WorkerPhase.AtCampfire) {
-      return worker.phase;
     }
 
     return null;

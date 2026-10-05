@@ -39,7 +39,7 @@ export class WorkerSign {
     if (worker.hasQuestion) {
       return QUESTION_FRAME;
     }
-    if (worker.phase === WorkerPhase.AtCampfire) {
+    if (worker.phase === WorkerPhase.Resting) {
       return SLEEP_FRAME;
     }
     return null;

@@ -30,7 +30,7 @@ export class WorkerTooltipText {
       return status.needsReply;
     }
 
-    if (worker.phase === WorkerPhase.AtCampfire) {
+    if (worker.phase === WorkerPhase.Resting) {
       return status.resting;
     }
 

@@ -27,12 +27,6 @@ export const TOWN_HALL: Rect = { x: 136, y: 48, width: 28, height: 28 };
 export const TOWN_HALL_SPAWN: Point = { x: 148, y: 78 };
 
 export const CAMPFIRE: Rect = { x: 143, y: 82, width: 10, height: 12 };
-export const CAMPFIRE_SEATS: readonly Point[] = [
-  { x: 134, y: 90 },
-  { x: 162, y: 90 },
-  { x: 140, y: 102 },
-  { x: 154, y: 104 },
-];
 
 export const MINE: Rect = { x: 16, y: 16, width: 64, height: 48 };
 export const MINE_SLOTS: readonly Point[] = [
