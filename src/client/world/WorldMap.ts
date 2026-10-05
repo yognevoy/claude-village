@@ -30,8 +30,8 @@ export const CAMPFIRE: Rect = { x: 143, y: 82, width: 10, height: 12 };
 
 export const MINE: Rect = { x: 16, y: 16, width: 64, height: 48 };
 export const MINE_SLOTS: readonly Point[] = [
-  { x: 18, y: 68 },
-  { x: 64, y: 26 },
+  { x: 32, y: 56 },
+  { x: 56, y: 24 },
 ];
 
 export const FOREST: Rect = { x: 16, y: 122, width: 80, height: 54 };
@@ -41,7 +41,7 @@ export const FOREST_SLOTS: readonly Point[] = [
 ];
 
 export const RIVER_SLOTS: readonly Point[] = [
-  { x: 254, y: 36 },
+  { x: 242, y: 38 },
   { x: 254, y: 156 },
 ];
 
