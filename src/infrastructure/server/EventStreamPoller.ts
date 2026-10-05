@@ -19,6 +19,7 @@ export class EventStreamPoller {
   ) {}
 
   public start(): void {
+    this.poll();
     this.pollTimer = setInterval(() => this.poll(), this.pollIntervalMs);
   }
 

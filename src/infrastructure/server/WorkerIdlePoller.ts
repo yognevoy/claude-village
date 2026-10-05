@@ -13,6 +13,7 @@ export class WorkerIdlePoller {
   ) {}
 
   public start(): void {
+    this.poll();
     this.pollTimer = setInterval(() => this.poll(), this.pollIntervalMs);
   }
 
