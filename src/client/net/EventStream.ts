@@ -10,26 +10,54 @@ export interface EventStreamListener {
   onResources(totals: ResourceTotalsView): void;
 }
 
+const RECONNECT_DELAY_MS = 2000;
+
 export class EventStream {
-  private readonly source: EventSource;
+  private source: EventSource | undefined;
 
-  public constructor(url: string, listener: EventStreamListener) {
-    this.source = new EventSource(url);
+  public constructor(
+    private readonly url: string,
+    private readonly listener: EventStreamListener,
+  ) {
+    this.connect();
 
-    this.source.addEventListener(SseEvent.Snapshot, (event: MessageEvent<string>) => {
-      listener.onSnapshot(JSON.parse(event.data) as WorkerState[]);
-    });
-
-    this.source.addEventListener(SseEvent.Delta, (event: MessageEvent<string>) => {
-      listener.onDelta(JSON.parse(event.data) as WorkerState);
-    });
-
-    this.source.addEventListener(SseEvent.Resources, (event: MessageEvent<string>) => {
-      listener.onResources(JSON.parse(event.data) as ResourceTotalsView);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        this.reconnect();
+      }
     });
   }
 
   public close(): void {
-    this.source.close();
+    this.source?.close();
+  }
+
+  private connect(): void {
+    const source = new EventSource(this.url);
+    this.source = source;
+
+    source.addEventListener(SseEvent.Snapshot, (event: MessageEvent<string>) => {
+      this.listener.onSnapshot(JSON.parse(event.data) as WorkerState[]);
+    });
+
+    source.addEventListener(SseEvent.Delta, (event: MessageEvent<string>) => {
+      this.listener.onDelta(JSON.parse(event.data) as WorkerState);
+    });
+
+    source.addEventListener(SseEvent.Resources, (event: MessageEvent<string>) => {
+      this.listener.onResources(JSON.parse(event.data) as ResourceTotalsView);
+    });
+
+    source.addEventListener("error", () => {
+      if (source.readyState === EventSource.CLOSED) {
+        window.setTimeout(() => this.reconnect(), RECONNECT_DELAY_MS);
+      }
+    });
+  }
+
+  private reconnect(): void {
+    if (this.source?.readyState === EventSource.CLOSED) {
+      this.connect();
+    }
   }
 }
