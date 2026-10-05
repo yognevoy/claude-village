@@ -63,7 +63,7 @@ function assertSpotInvariants(registry: WorkerRegistry, spots: SpotSlotsConfig):
   const queuedCounts = new Map<SpotType, number>(SPOT_TYPES.map((type) => [type, 0]));
 
   for (const worker of registry.list()) {
-    if (worker.phase === WorkerPhase.AtSpot) {
+    if (worker.occupiesSlot()) {
       atSpotCounts.set(worker.spotType, (atSpotCounts.get(worker.spotType) ?? 0) + 1);
     } else if (worker.phase === WorkerPhase.Queued) {
       queuedCounts.set(worker.spotType, (queuedCounts.get(worker.spotType) ?? 0) + 1);
@@ -123,11 +123,11 @@ test("a single worker walks through every event of the CLAUDE.md reaction table 
   assert.equal(worker?.hasAlert, false);
   assert.equal(worker?.isWorking, false);
 
-  clock.advanceTo(1900 + DEFAULT_CONFIG.idle.campfireAfterSec * 1000);
+  clock.advanceTo(1900 + DEFAULT_CONFIG.idle.restAfterSec * 1000);
   scheduler.tick();
-  assert.equal(registry.get("s1")?.phase, WorkerPhase.AtCampfire);
+  assert.equal(registry.get("s1")?.phase, WorkerPhase.Resting);
 
-  clock.advanceTo(1900 + DEFAULT_CONFIG.idle.vanishAfterSec * 1000);
+  clock.advanceTo(1900 + DEFAULT_CONFIG.idle.leaveAfterSec * 1000);
   scheduler.tick();
   assert.equal(registry.get("s1")?.phase, WorkerPhase.Gone);
 
@@ -229,13 +229,13 @@ test("20+ concurrent sessions never overbook a spot and never leave a free slot 
     assertSpotInvariants(registry, spots);
   }
 
-  clock.advanceBy(DEFAULT_CONFIG.idle.vanishAfterSec * 1000 * 2);
+  clock.advanceBy(DEFAULT_CONFIG.idle.leaveAfterSec * 1000 * 2);
   scheduler.tick();
   assertSpotInvariants(registry, spots);
 
   const remaining = registry.list();
   const stillHoldingASpot = remaining.filter(
-    (worker) => worker.phase === WorkerPhase.AtSpot || worker.phase === WorkerPhase.Queued,
+    (worker) => worker.occupiesSlot() || worker.phase === WorkerPhase.Queued,
   );
   assert.equal(stillHoldingASpot.length, 0);
 });

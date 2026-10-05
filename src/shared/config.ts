@@ -5,8 +5,8 @@ export interface SpotSlotsConfig {
 }
 
 export interface IdleThresholdsConfig {
-  campfireAfterSec: number;
-  vanishAfterSec: number;
+  restAfterSec: number;
+  leaveAfterSec: number;
 }
 
 export interface SubagentsConfig {
@@ -34,8 +34,8 @@ export const DEFAULT_CONFIG: Config = {
     river: 2,
   },
   idle: {
-    campfireAfterSec: 120,
-    vanishAfterSec: 10800,
+    restAfterSec: 300,
+    leaveAfterSec: 600,
   },
   subagents: {
     maxVisible: 6,

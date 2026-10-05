@@ -1,6 +1,6 @@
 export enum WorkerPhase {
   Queued = "queued",
   AtSpot = "at-spot",
-  AtCampfire = "at-campfire",
+  Resting = "resting",
   Gone = "gone",
 }

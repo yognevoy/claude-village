@@ -60,7 +60,12 @@ export class WorkerRegistry implements WorkerLifecycle, IdleWorkerStore {
   }
 
   public wake(worker: Worker): void {
-    if (worker.isAtSpot() || worker.isQueued()) {
+    if (worker.isQueued()) {
+      return;
+    }
+
+    if (worker.occupiesSlot()) {
+      worker.setPhase(WorkerPhase.AtSpot);
       return;
     }
 
@@ -80,6 +85,10 @@ export class WorkerRegistry implements WorkerLifecycle, IdleWorkerStore {
     return promoted;
   }
 
+  public rest(worker: Worker): void {
+    worker.setPhase(WorkerPhase.Resting);
+  }
+
   public idle(worker: Worker, phase: WorkerPhase): Worker | null {
     const promoted = this.release(worker);
     worker.setPhase(phase);
@@ -89,7 +98,7 @@ export class WorkerRegistry implements WorkerLifecycle, IdleWorkerStore {
   private release(worker: Worker): Worker | null {
     const spot = this.spotSlotRegistry.of(worker.spotType);
 
-    if (worker.isAtSpot()) {
+    if (worker.occupiesSlot()) {
       const promotedId = spot.leave(worker.sessionId);
 
       if (promotedId === null) {

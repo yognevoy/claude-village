@@ -123,59 +123,70 @@ test("subagents exposes the underlying registry for direct queries", () => {
 test("setPhase changes the phase directly", () => {
   const worker = new Worker("s1", "project", SpotType.Mine, true, 1000);
 
-  worker.setPhase(WorkerPhase.AtCampfire);
+  worker.setPhase(WorkerPhase.Resting);
 
-  assert.equal(worker.phase, WorkerPhase.AtCampfire);
+  assert.equal(worker.phase, WorkerPhase.Resting);
 });
 
-test("isAtSpot is true only while the phase is AtSpot", () => {
+test("occupiesSlot is true while the phase is AtSpot or Resting", () => {
   const worker = new Worker("s1", "project", SpotType.Mine, true, 1000);
 
-  assert.equal(worker.isAtSpot(), true);
+  assert.equal(worker.occupiesSlot(), true);
   assert.equal(worker.isQueued(), false);
 
-  worker.setPhase(WorkerPhase.AtCampfire);
+  worker.setPhase(WorkerPhase.Resting);
 
-  assert.equal(worker.isAtSpot(), false);
+  assert.equal(worker.occupiesSlot(), true);
+
+  worker.setPhase(WorkerPhase.Gone);
+
+  assert.equal(worker.occupiesSlot(), false);
 });
 
 test("isQueued is true only while the phase is Queued", () => {
   const worker = new Worker("s1", "project", SpotType.Mine, false, 1000);
 
   assert.equal(worker.isQueued(), true);
-  assert.equal(worker.isAtSpot(), false);
+  assert.equal(worker.occupiesSlot(), false);
 
   worker.setPhase(WorkerPhase.AtSpot);
 
   assert.equal(worker.isQueued(), false);
 });
 
-const thresholds = { campfireAfterSec: 120, vanishAfterSec: 10800 };
+const thresholds = { restAfterSec: 300, leaveAfterSec: 600 };
 
-test("idlePhaseAt returns null while idle time stays below the campfire threshold", () => {
+test("idlePhaseAt returns null while idle time stays below the rest threshold", () => {
   const worker = new Worker("s1", "project", SpotType.Mine, true, 0);
 
   assert.equal(worker.idlePhaseAt(0, thresholds), null);
-  assert.equal(worker.idlePhaseAt(119_999, thresholds), null);
+  assert.equal(worker.idlePhaseAt(299_999, thresholds), null);
 });
 
-test("idlePhaseAt returns AtCampfire from the campfire threshold up to the vanish threshold", () => {
+test("idlePhaseAt returns Resting for a worker on its spot from the rest threshold up to the leave threshold", () => {
   const worker = new Worker("s1", "project", SpotType.Mine, true, 0);
 
-  assert.equal(worker.idlePhaseAt(120_000, thresholds), WorkerPhase.AtCampfire);
-  assert.equal(worker.idlePhaseAt(10_799_999, thresholds), WorkerPhase.AtCampfire);
+  assert.equal(worker.idlePhaseAt(300_000, thresholds), WorkerPhase.Resting);
+  assert.equal(worker.idlePhaseAt(599_999, thresholds), WorkerPhase.Resting);
 });
 
-test("idlePhaseAt returns Gone from the vanish threshold onward", () => {
+test("idlePhaseAt returns Gone from the leave threshold onward", () => {
   const worker = new Worker("s1", "project", SpotType.Mine, true, 0);
 
-  assert.equal(worker.idlePhaseAt(10_800_000, thresholds), WorkerPhase.Gone);
+  assert.equal(worker.idlePhaseAt(600_000, thresholds), WorkerPhase.Gone);
   assert.equal(worker.idlePhaseAt(50_000_000, thresholds), WorkerPhase.Gone);
+});
+
+test("idlePhaseAt does not rest a queued worker, only leaves it", () => {
+  const worker = new Worker("s1", "project", SpotType.Mine, false, 0);
+
+  assert.equal(worker.idlePhaseAt(300_000, thresholds), null);
+  assert.equal(worker.idlePhaseAt(600_000, thresholds), WorkerPhase.Gone);
 });
 
 test("idlePhaseAt measures idle time from lastEventAt, not from worker creation", () => {
   const worker = new Worker("s1", "project", SpotType.Mine, true, 1000);
   worker.onPostTool(500_000);
 
-  assert.equal(worker.idlePhaseAt(500_000 + 120_000, thresholds), WorkerPhase.AtCampfire);
+  assert.equal(worker.idlePhaseAt(500_000 + 300_000, thresholds), WorkerPhase.Resting);
 });

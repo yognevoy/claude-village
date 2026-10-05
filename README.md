@@ -92,7 +92,7 @@ These are the defaults the server runs with:
 {
   "port": 4791,
   "spots": { "mine": 2, "forest": 2, "river": 2 },
-  "idle": { "campfireAfterSec": 120, "vanishAfterSec": 10800 },
+  "idle": { "restAfterSec": 300, "leaveAfterSec": 600 },
   "subagents": { "maxVisible": 6, "idleSec": 30 },
   "events": { "maxFileBytes": 5242880 }
 }

@@ -59,19 +59,19 @@ export class Worker {
   public idlePhaseAt(now: number, thresholds: IdleThresholdsConfig): WorkerPhase | null {
     const idleSec = (now - this._lastEventAt) / 1000;
 
-    if (idleSec >= thresholds.vanishAfterSec) {
+    if (idleSec >= thresholds.leaveAfterSec) {
       return WorkerPhase.Gone;
     }
 
-    if (idleSec >= thresholds.campfireAfterSec) {
-      return WorkerPhase.AtCampfire;
+    if (this._phase === WorkerPhase.AtSpot && idleSec >= thresholds.restAfterSec) {
+      return WorkerPhase.Resting;
     }
 
     return null;
   }
 
-  public isAtSpot(): boolean {
-    return this._phase === WorkerPhase.AtSpot;
+  public occupiesSlot(): boolean {
+    return this._phase === WorkerPhase.AtSpot || this._phase === WorkerPhase.Resting;
   }
 
   public isQueued(): boolean {

@@ -100,11 +100,26 @@ test("idle frees the slot, promotes the next queued worker, and keeps the idle w
 
   const worker = registry.get("s1");
   assert.ok(worker);
-  const promoted = registry.idle(worker, WorkerPhase.AtCampfire);
+  const promoted = registry.idle(worker, WorkerPhase.Gone);
 
-  assert.equal(registry.get("s1")?.phase, WorkerPhase.AtCampfire);
+  assert.equal(registry.get("s1")?.phase, WorkerPhase.Gone);
   assert.equal(registry.get("s4")?.phase, WorkerPhase.AtSpot);
   assert.equal(promoted?.sessionId, "s4");
+});
+
+test("resting keeps the spot slot, so a queued worker is not promoted", () => {
+  const registry = newRegistry();
+  registry.apply(record("SessionStart", "s1", 1000));
+  registry.apply(record("SessionStart", "s2", 1001));
+  registry.apply(record("SessionStart", "s3", 1002));
+  registry.apply(record("SessionStart", "s4", 1003));
+
+  const worker = registry.get("s1");
+  assert.ok(worker);
+  registry.rest(worker);
+
+  assert.equal(registry.get("s1")?.phase, WorkerPhase.Resting);
+  assert.equal(registry.get("s4")?.phase, WorkerPhase.Queued);
 });
 
 test("idle on a queued worker cancels its queue position instead of touching the slot", () => {
@@ -134,18 +149,30 @@ test("PostToolUse grows the resource counter for the worker's spot type", () => 
   assert.equal(registry.resourceCounters.get(worker.spotType), 2);
 });
 
-test("a new event wakes a worker from AtCampfire or Gone back onto its own spot type", () => {
-  for (const phase of [WorkerPhase.AtCampfire, WorkerPhase.Gone]) {
-    const registry = newRegistry();
-    registry.apply(record("SessionStart", "s1", 1000));
+test("a new event wakes a resting worker back to work on its own spot", () => {
+  const registry = newRegistry();
+  registry.apply(record("SessionStart", "s1", 1000));
 
-    const worker = registry.get("s1");
-    assert.ok(worker);
-    registry.idle(worker, phase);
+  const worker = registry.get("s1");
+  assert.ok(worker);
+  registry.rest(worker);
 
-    registry.apply(record("UserPromptSubmit", "s1", 2000));
+  registry.apply(record("UserPromptSubmit", "s1", 2000));
 
-    assert.equal(registry.get("s1")?.phase, WorkerPhase.AtSpot);
-    assert.equal(registry.get("s1")?.spotType, SpotType.Mine);
-  }
+  assert.equal(registry.get("s1")?.phase, WorkerPhase.AtSpot);
+  assert.equal(registry.get("s1")?.spotType, SpotType.Mine);
+});
+
+test("a new event wakes a gone worker back onto its own spot type", () => {
+  const registry = newRegistry();
+  registry.apply(record("SessionStart", "s1", 1000));
+
+  const worker = registry.get("s1");
+  assert.ok(worker);
+  registry.idle(worker, WorkerPhase.Gone);
+
+  registry.apply(record("UserPromptSubmit", "s1", 2000));
+
+  assert.equal(registry.get("s1")?.phase, WorkerPhase.AtSpot);
+  assert.equal(registry.get("s1")?.spotType, SpotType.Mine);
 });

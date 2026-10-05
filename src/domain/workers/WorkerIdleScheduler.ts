@@ -1,11 +1,12 @@
 import type { Clock } from "./Clock.js";
 import type { IdleThresholdsConfig, SubagentsConfig } from "../../shared/config.js";
 import type { Worker } from "./Worker.js";
-import type { WorkerPhase } from "./WorkerPhase.js";
+import { WorkerPhase } from "./WorkerPhase.js";
 
 export interface IdleWorkerStore {
   list(): readonly Worker[];
   idle(worker: Worker, phase: WorkerPhase): Worker | null;
+  rest(worker: Worker): void;
 }
 
 export class WorkerIdleScheduler {
@@ -23,7 +24,10 @@ export class WorkerIdleScheduler {
     for (const worker of this.store.list()) {
       const targetPhase = worker.idlePhaseAt(now, this.thresholds);
 
-      if (targetPhase !== null && worker.phase !== targetPhase) {
+      if (targetPhase === WorkerPhase.Resting && worker.phase !== targetPhase) {
+        this.store.rest(worker);
+        changed.add(worker);
+      } else if (targetPhase !== null && worker.phase !== targetPhase) {
         const promoted = this.store.idle(worker, targetPhase);
         changed.add(worker);
 
