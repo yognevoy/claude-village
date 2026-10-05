@@ -20,7 +20,7 @@
   "homepage": "https://github.com/yognevoy/claude-village#readme",
   "type": "module",
   "bin": {
-    "claude-village": "./dist/bin/claude-village.js"
+    "claude-village": "dist/bin/claude-village.js"
   },
   "files": [
     "dist/bin",
