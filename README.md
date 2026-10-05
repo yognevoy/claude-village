@@ -35,11 +35,7 @@ If you run ten or twenty Claude Code sessions at once, the terminal tabs stop te
 Requires Node.js 18+ and Claude Code. Linux and macOS are supported.
 
 ```bash
-git clone https://github.com/yognevoy/claude-village.git
-cd claude-village
-npm install
-npm run build
-npm link
+npm install -g claude-village
 
 claude-village install   # register hooks in ~/.claude/settings.json
 claude-village start     # start the local server
@@ -47,7 +43,7 @@ claude-village start     # start the local server
 
 Open **http://127.0.0.1:4791** in your browser and start a Claude Code session. Its worker leaves the town hall.
 
-Keep the cloned folder where it is: the hooks point to the built hook script inside it.
+The hooks store the absolute path to the installed package. If you switch Node.js versions (for example with nvm) or reinstall the package, run `claude-village install` again so the hooks point to the new location.
 
 ## What you see
 
