@@ -1,19 +1,41 @@
 {
   "name": "claude-village",
   "version": "0.1.0",
-  "private": true,
+  "description": "Watch your Claude Code sessions work as a pixel-art village",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "hooks",
+    "dashboard",
+    "phaser"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yognevoy/claude-village.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yognevoy/claude-village/issues"
+  },
+  "homepage": "https://github.com/yognevoy/claude-village#readme",
   "type": "module",
   "bin": {
     "claude-village": "./dist/bin/claude-village.js"
   },
   "files": [
-    "dist"
+    "dist/bin",
+    "dist/src/hook",
+    "dist/src/infrastructure",
+    "dist/src/domain",
+    "dist/src/shared",
+    "dist/client"
   ],
   "engines": {
     "node": ">=18"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && vite build",
+    "prepublishOnly": "npm run build",
     "dev:server": "tsx watch bin/claude-village.ts start",
     "dev:client": "vite",
     "dev:sandbox": "tsx scripts/sandbox.ts",
