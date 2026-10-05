@@ -75,6 +75,7 @@ export class WorkerView {
     this.state = worker;
     this.sign.update(worker);
     this.label.update(worker);
+    this.label.setVisible(true);
 
     const hasMoved = this.target.x !== target.x || this.target.y !== target.y;
 
@@ -97,6 +98,7 @@ export class WorkerView {
     }
 
     this.sign.gameObject.setVisible(false);
+    this.label.setVisible(false);
     this.target = TOWN_HALL_SPAWN;
     this.motion.moveTo(TOWN_HALL_SPAWN, WorkerAnimations.walkKey(this.spotType), onArrive);
   }

@@ -7,12 +7,16 @@ export const NAME_TAG_HEIGHT_PX = 16;
 
 export interface LabelElement {
   textContent: string | null;
-  readonly style: { left: string; top: string };
+  readonly style: { left: string; top: string; display: string };
   remove(): void;
 }
 
 export class WorkerLabel {
   public constructor(private readonly element: LabelElement) {}
+
+  public setVisible(visible: boolean): void {
+    this.element.style.display = visible ? "" : "none";
+  }
 
   public update(worker: Pick<WorkerState, "projectName">): void {
     const text = WorkerLabel.shorten(worker.projectName);

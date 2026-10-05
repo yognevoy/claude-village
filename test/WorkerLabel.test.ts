@@ -9,7 +9,7 @@ interface FakeElement extends LabelElement {
 function fakeElement(): FakeElement {
   return {
     textContent: null,
-    style: { left: "", top: "" },
+    style: { left: "", top: "", display: "" },
     removed: false,
     remove() {
       this.removed = true;
