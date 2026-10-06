@@ -1,9 +1,8 @@
 import type { ResourceTotalsView } from "../net/EventStream.js";
+import type { BackgroundMusic } from "../audio/BackgroundMusic.js";
 import { texts } from "../../shared/texts.js";
 
 export class HudPanel {
-  private soundOn = false;
-
   public constructor(
     private readonly titleEl: HTMLElement,
     private readonly stoneCounterEl: HTMLElement,
@@ -11,10 +10,11 @@ export class HudPanel {
     private readonly fishCounterEl: HTMLElement,
     private readonly soundButtonEl: HTMLButtonElement,
     private readonly soundLabelEl: HTMLElement,
+    private readonly music: BackgroundMusic,
   ) {
     this.titleEl.textContent = texts.client.title;
     this.setTotals({ mine: 0, forest: 0, river: 0 });
-    this.updateSoundLabel();
+    this.renderSound();
     this.soundButtonEl.addEventListener("click", () => {
       this.toggleSound();
     });
@@ -29,13 +29,13 @@ export class HudPanel {
   }
 
   private toggleSound(): void {
-    this.soundOn = !this.soundOn;
-    this.soundButtonEl.setAttribute("aria-pressed", String(this.soundOn));
-    this.updateSoundLabel();
+    this.music.toggle();
+    this.renderSound();
   }
 
-  private updateSoundLabel(): void {
-    this.soundLabelEl.textContent = this.soundOn
+  private renderSound(): void {
+    this.soundButtonEl.setAttribute("aria-pressed", String(this.music.isOn));
+    this.soundLabelEl.textContent = this.music.isOn
       ? texts.client.soundOn
       : texts.client.soundOff;
   }
