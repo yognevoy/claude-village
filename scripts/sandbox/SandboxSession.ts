@@ -3,28 +3,50 @@ import type { EventLineRecord } from "../../src/domain/events/EventLineRecord.js
 import type { EventRepository } from "../../src/infrastructure/repository/EventRepository.js";
 import type { Scenario } from "./scenarios/Scenario.js";
 import type { ScenarioStep } from "./scenarios/ScenarioStep.js";
+import { waitFor } from "./utils/waitFor.js";
 
 export class SandboxSession {
+  private ended = false;
+
   constructor(
     private readonly sessionId: string,
     private readonly cwd: string,
     private readonly scenario: Scenario,
+    private readonly lifetimeMs: number,
     private readonly repository: EventRepository,
   ) {}
 
   public async run(signal: AbortSignal): Promise<void> {
+    const deadline = Date.now() + this.lifetimeMs;
+
     this.emit({ event: ClaudeEvent.SessionStart, delayMs: 0 });
 
     do {
       const steps = this.scenario.buildSteps();
       for (const step of steps) {
-        await this.wait(step.delayMs, signal);
+        await waitFor(step.delayMs, signal);
         if (signal.aborted) {
           return;
         }
         this.emit(step);
       }
-    } while (this.scenario.loop && !signal.aborted);
+    } while (this.scenario.loop && Date.now() < deadline && !signal.aborted);
+
+    await waitFor(deadline - Date.now(), signal);
+    if (signal.aborted) {
+      return;
+    }
+
+    this.end();
+  }
+
+  public end(): void {
+    if (this.ended) {
+      return;
+    }
+
+    this.ended = true;
+    this.emit({ event: ClaudeEvent.SessionEnd, delayMs: 0 });
   }
 
   private emit(step: ScenarioStep): void {
@@ -38,23 +60,5 @@ export class SandboxSession {
       ...(step.event === ClaudeEvent.Notification && { notificationType: step.notificationType ?? null }),
     };
     this.repository.save(record);
-  }
-
-  private wait(ms: number, signal: AbortSignal): Promise<void> {
-    if (ms <= 0) {
-      return Promise.resolve();
-    }
-
-    return new Promise((resolve) => {
-      const timer = setTimeout(resolve, ms);
-      signal.addEventListener(
-        "abort",
-        () => {
-          clearTimeout(timer);
-          resolve();
-        },
-        { once: true },
-      );
-    });
   }
 }
