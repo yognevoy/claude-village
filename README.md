@@ -28,7 +28,7 @@
   <a href="#contributing">Contributing</a>
 </p>
 
-If you run ten or twenty Claude Code sessions at once, the terminal tabs stop telling you what is happening. Claude Village puts them on a second monitor as a small world: a worker per session walks to a mine, a forest or a river and works there while Claude works. When a session needs your permission or an answer, its worker raises a sign. When a session goes quiet, its worker heads to the campfire, and when the session ends, it goes home to the town hall.
+If you run ten or twenty Claude Code sessions at once, the terminal tabs stop telling you what is happening. Claude Village puts them on a second monitor as a small world: a worker per session walks to a mine, a forest or a river and works there while Claude works. When a session needs your permission or an answer, its worker raises a sign. When a session goes quiet, its worker sits down to rest on its spot, and when the session stays silent for longer or ends, it goes home to the town hall.
 
 ## Quick start
 
@@ -53,16 +53,33 @@ The hooks store the absolute path to the installed package. If you switch Node.j
 | Working | Mines, chops or fishes, and the resource counter grows after each tool call |
 | Waiting for your reply | Stands still with a **?** above its head |
 | Waiting for your permission | Shows a **!** above its head, on top of any other state |
-| Silent for 2 minutes | Walks to the campfire and sits there with a **z** |
-| Silent for 3 hours or session ended | Goes back to the town hall and disappears |
+| Silent for 5 minutes | Sits down on its spot and shows a **z** |
+| Silent for 10 minutes or session ended | Goes back to the town hall and disappears |
 
-Each session keeps the spot type it was given (ore, wood or fish) for its whole life. Any new event from a session wakes its worker and sends it back to its spot. Hover over a worker to see its project name, state and time since the last event.
+Each session keeps the spot type it was given (stone, wood or fish) for its whole life. Any new event from a session wakes its worker and sends it back to its spot. Hover over a worker to see its project name, state and time since the last event.
 
-The HUD shows three counters: **stone**, **wood** and **fish**. They are kept in memory and reset when the server restarts.
+The HUD shows three counters: **stone**, **wood** and **fish**. They are kept in memory. When the server starts, it replays the events file to rebuild them, so the counters survive restarts until the events file is rotated.
+
+## What each hook does
+
+| Hook event | What happens on screen |
+| --- | --- |
+| `SessionStart` | A worker walks out of the town hall to a free spot. If all spots are taken, it waits in a queue. |
+| `UserPromptSubmit` | The **?** sign clears and the worker goes back to work. |
+| `PreToolUse` | The worker plays the work animation for its spot type. |
+| `PermissionRequest` | A **!** appears above the worker, on top of any other state. |
+| `PostToolUse` | The counter for the worker's resource grows by one, and the **!** clears. |
+| `Notification` | A **!** appears. Idle reminders are ignored. |
+| `Stop` | A **?** appears and the worker stands still, waiting for you. |
+| `SubagentStart` | The subagent is registered for its parent. It is not drawn yet. |
+| `SubagentStop` | The subagent is removed from its parent. |
+| `SessionEnd` | The worker walks back to the town hall and disappears. |
+
+Hooks from sessions the server has not seen before create a worker, as if `SessionStart` had arrived.
 
 ## How it works
 
-Claude Code hooks are the only data source. The installer registers a small hook script for ten events: `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `Notification`, `Stop`, `SubagentStart`, `SubagentStop` and `SessionEnd`.
+Claude Code hooks are the only data source. The installer registers a small hook script for the ten events in the table above.
 
 1. The hook reads the event from stdin, appends one short JSON line to `~/.claude-village/events.ndjson` and exits with code 0. It never writes to stdout or stderr, never blocks Claude Code and swallows its own errors.
 2. The local server reads that file from its last offset, tolerating truncation and rotation, and keeps the authoritative state of every session in memory.
@@ -76,7 +93,7 @@ Claude Village is built to see as little as possible.
 
 - **Recorded locally** in `~/.claude-village/events.ndjson`: timestamp, event name, session ID, working directory, tool name and agent ID.
 - **Never recorded:** prompts, responses, tool inputs, tool outputs and file contents.
-- **Sent to the browser:** event type, session ID, agent ID, project name (the folder's base name only), and the derived worker state. Full paths are never sent.
+- **Sent to the browser:** session ID, project name (the folder's base name only), and the derived worker state. Full paths are never sent.
 
 Everything runs on your machine. Nothing is sent to any external service.
 
@@ -96,7 +113,9 @@ These are the defaults the server runs with:
 
 - `port`: can be overridden for a single run with `claude-village start --port <number>`.
 - `spots`: how many workers can work on each type of spot at the same time. The rest queue near the least busy spot type.
-- `idle`: when a silent session walks to the campfire, and when its worker leaves the village.
+- `idle.restAfterSec`: silence after which a worker sits down to rest on its spot.
+- `idle.leaveAfterSec`: silence after which a worker walks home and disappears.
+- `subagents`: limits for subagent tracking. Subagents are counted by the server, but they are not drawn on the map yet.
 - `events.maxFileBytes`: the events file is truncated once the server has consumed it and it has grown past this size.
 
 Editing the values in a config file is not supported yet; they are defined in [`src/shared/config.ts`](src/shared/config.ts).
@@ -107,7 +126,7 @@ Editing the values in a config file is not supported yet; they are defined in [`
 claude-village uninstall
 ```
 
-This removes only the hooks Claude Village added. Your other Claude Code settings are not touched. The backup created by `install` remains in `~/.claude/`, and `~/.claude-village/` is yours to delete.
+This removes only the hooks Claude Village added. Your other Claude Code settings are not touched. If `install` rewrote an existing `~/.claude/settings.json`, it left a `settings.json.backup-<timestamp>` next to it. `~/.claude-village/` is yours to delete.
 
 ## Development
 
