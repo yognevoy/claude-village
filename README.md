@@ -60,9 +60,26 @@ Each session keeps the spot type it was given (stone, wood or fish) for its whol
 
 The HUD shows three counters: **stone**, **wood** and **fish**. They are kept in memory. When the server starts, it replays the events file to rebuild them, so the counters survive restarts until the events file is rotated.
 
+## What each hook does
+
+| Hook event | What happens on screen |
+| --- | --- |
+| `SessionStart` | A worker walks out of the town hall to a free spot. If all spots are taken, it waits in a queue. |
+| `UserPromptSubmit` | The **?** sign clears and the worker goes back to work. |
+| `PreToolUse` | The worker plays the work animation for its spot type. |
+| `PermissionRequest` | A **!** appears above the worker, on top of any other state. |
+| `PostToolUse` | The counter for the worker's resource grows by one, and the **!** clears. |
+| `Notification` | A **!** appears. Idle reminders are ignored. |
+| `Stop` | A **?** appears and the worker stands still, waiting for you. |
+| `SubagentStart` | The subagent is registered for its parent. It is not drawn yet. |
+| `SubagentStop` | The subagent is removed from its parent. |
+| `SessionEnd` | The worker walks back to the town hall and disappears. |
+
+Hooks from sessions the server has not seen before create a worker, as if `SessionStart` had arrived.
+
 ## How it works
 
-Claude Code hooks are the only data source. The installer registers a small hook script for ten events: `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `Notification`, `Stop`, `SubagentStart`, `SubagentStop` and `SessionEnd`.
+Claude Code hooks are the only data source. The installer registers a small hook script for the ten events in the table above.
 
 1. The hook reads the event from stdin, appends one short JSON line to `~/.claude-village/events.ndjson` and exits with code 0. It never writes to stdout or stderr, never blocks Claude Code and swallows its own errors.
 2. The local server reads that file from its last offset, tolerating truncation and rotation, and keeps the authoritative state of every session in memory.
