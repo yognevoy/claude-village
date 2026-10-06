@@ -42,7 +42,7 @@ export const FOREST_SLOTS: readonly Point[] = [
 
 export const RIVER_SLOTS: readonly Point[] = [
   { x: 242, y: 38 },
-  { x: 254, y: 156 },
+  { x: 234, y: 132 },
 ];
 
 export const SPOT_SLOTS: Readonly<Record<SpotType, readonly Point[]>> = {
