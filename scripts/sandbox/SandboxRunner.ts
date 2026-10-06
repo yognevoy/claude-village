@@ -7,8 +7,8 @@ import { pickRandom } from "./utils/pickRandom.js";
 import { randomDelay } from "./utils/randomDelay.js";
 import { waitFor } from "./utils/waitFor.js";
 
-const SESSION_LIFETIME_MIN_MS = 7_000;
-const SESSION_LIFETIME_MAX_MS = 30_000;
+const SESSION_LIFETIME_MIN_MS = 15_000;
+const SESSION_LIFETIME_MAX_MS = 60_000;
 const SESSION_PAUSE_MIN_MS = 3_000;
 const SESSION_PAUSE_MAX_MS = 10_000;
 
