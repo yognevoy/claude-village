@@ -136,3 +136,5 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 ## Credits
 
 Pixel-art tiles from [Mini Medieval](https://v3x3d.itch.io/) by VEXED.
+
+Background music "Peaceful Theme" by [pebonius](https://pebonius.itch.io/).
