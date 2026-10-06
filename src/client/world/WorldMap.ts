@@ -30,19 +30,19 @@ export const CAMPFIRE: Rect = { x: 143, y: 82, width: 10, height: 12 };
 
 export const MINE: Rect = { x: 16, y: 16, width: 64, height: 48 };
 export const MINE_SLOTS: readonly Point[] = [
-  { x: 32, y: 56 },
-  { x: 56, y: 24 },
+  { x: 30, y: 54 },
+  { x: 54, y: 22 },
 ];
 
 export const FOREST: Rect = { x: 16, y: 122, width: 80, height: 54 };
 export const FOREST_SLOTS: readonly Point[] = [
-  { x: 92, y: 128 },
-  { x: 31, y: 159 },
+  { x: 86, y: 132 },
+  { x: 30, y: 164 },
 ];
 
 export const RIVER_SLOTS: readonly Point[] = [
   { x: 242, y: 38 },
-  { x: 254, y: 156 },
+  { x: 234, y: 132 },
 ];
 
 export const SPOT_SLOTS: Readonly<Record<SpotType, readonly Point[]>> = {
