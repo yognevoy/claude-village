@@ -4,11 +4,13 @@ import { texts } from "../../shared/texts.js";
 import { AlertToggle } from "./AlertToggle.js";
 import { ResourceCounters } from "./ResourceCounters.js";
 import { SoundToggle } from "./SoundToggle.js";
+import { ThemePicker } from "./ThemePicker.js";
 
 export class HudPanel {
   private readonly _counters: ResourceCounters;
   private readonly soundToggle: SoundToggle;
   private readonly alertToggle: AlertToggle;
+  private readonly themePicker: ThemePicker;
 
   public constructor(
     titleEl: HTMLElement,
@@ -21,6 +23,9 @@ export class HudPanel {
     notifyButtonEl: HTMLButtonElement,
     notifyLabelEl: HTMLElement,
     notifier: AlertNotifier,
+    themeButtonEl: HTMLButtonElement,
+    themeLabelEl: HTMLElement,
+    themeStatusEl: HTMLElement,
   ) {
     titleEl.textContent = texts.client.title;
 
@@ -29,6 +34,7 @@ export class HudPanel {
 
     this.soundToggle = new SoundToggle(soundButtonEl, soundLabelEl, music);
     this.alertToggle = new AlertToggle(notifyButtonEl, notifyLabelEl, notifier);
+    this.themePicker = new ThemePicker(themeButtonEl, themeLabelEl, themeStatusEl);
   }
 
   public get counters(): ResourceCounters {
