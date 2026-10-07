@@ -10,6 +10,8 @@ export interface PageElements {
   readonly fishCounterEl: HTMLElement;
   readonly soundButtonEl: HTMLButtonElement;
   readonly soundLabelEl: HTMLElement;
+  readonly notifyButtonEl: HTMLButtonElement;
+  readonly notifyLabelEl: HTMLElement;
 }
 
 export class DomRegistry {
@@ -26,6 +28,8 @@ export class DomRegistry {
       fishCounterEl: document.querySelector<HTMLElement>("#fish-counter"),
       soundButtonEl: document.querySelector<HTMLButtonElement>("#soundBtn"),
       soundLabelEl: document.querySelector<HTMLElement>("#soundLabel"),
+      notifyButtonEl: document.querySelector<HTMLButtonElement>("#notifyBtn"),
+      notifyLabelEl: document.querySelector<HTMLElement>("#notifyLabel"),
     };
 
     for (const [name, element] of Object.entries(elements)) {

@@ -28,13 +28,22 @@
           <div class="counter"><span class="swatch wood"></span><span id="wood-counter"></span></div>
           <div class="counter"><span class="swatch fish"></span><span id="fish-counter"></span></div>
         </div>
-        <button class="sound-toggle" id="soundBtn" type="button" aria-pressed="false">
-          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M2 6H4.5L8 3V13L4.5 10H2V6Z" fill="currentColor" />
-            <path id="soundWave" d="M10.5 5.5C11.5 6.5 11.5 9.5 10.5 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-          <span id="soundLabel"></span>
-        </button>
+        <div class="toggles">
+          <button class="sound-toggle" id="soundBtn" type="button" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M2 6H4.5L8 3V13L4.5 10H2V6Z" fill="currentColor" />
+              <path id="soundWave" d="M10.5 5.5C11.5 6.5 11.5 9.5 10.5 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+            </svg>
+            <span id="soundLabel"></span>
+          </button>
+          <button class="notify-toggle" id="notifyBtn" type="button" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M8 2.5C6.6 2.5 5.6 3.7 5.6 5.2V7.6C5.6 8.8 5.1 9.7 4.2 10.3H11.8C10.9 9.7 10.4 8.8 10.4 7.6V5.2C10.4 3.7 9.4 2.5 8 2.5Z" fill="currentColor" />
+              <path d="M6.6 11.5C6.6 12.3 7.2 13 8 13C8.8 13 9.4 12.3 9.4 11.5" stroke="currentColor" stroke-width="1" />
+            </svg>
+            <span id="notifyLabel"></span>
+          </button>
+        </div>
       </div>
     </div>
     <script type="module" src="./main.ts"></script>

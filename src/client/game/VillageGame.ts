@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import type { HudPanel } from "../hud/HudPanel.js";
+import type { AlertNotifier } from "../notifications/AlertNotifier.js";
 import type { NameTagOverlay } from "../world/NameTagOverlay.js";
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../world/WorldMap.js";
 import { VillageScene } from "./VillageScene.js";
@@ -9,8 +10,8 @@ const MAX_ZOOM = 3;
 export class VillageGame {
   private readonly game: Phaser.Game;
 
-  public constructor(parent: HTMLElement, overlay: NameTagOverlay, hud: HudPanel) {
-    const scene = new VillageScene(hud, overlay);
+  public constructor(parent: HTMLElement, overlay: NameTagOverlay, hud: HudPanel, notifier: AlertNotifier) {
+    const scene = new VillageScene(hud, overlay, notifier);
 
     this.game = new Phaser.Game({
       type: Phaser.AUTO,

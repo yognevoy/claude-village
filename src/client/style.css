@@ -153,6 +153,12 @@ body {
   gap: 18px;
 }
 
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .counter {
   display: flex;
   align-items: center;
@@ -181,7 +187,8 @@ body {
   background: #5aa7cf;
 }
 
-.sound-toggle {
+.sound-toggle,
+.notify-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -197,12 +204,14 @@ body {
   cursor: pointer;
 }
 
-.sound-toggle svg {
+.sound-toggle svg,
+.notify-toggle svg {
   width: 14px;
   height: 14px;
 }
 
-.sound-toggle:focus-visible {
+.sound-toggle:focus-visible,
+.notify-toggle:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
