@@ -68,6 +68,27 @@ body {
     0 14px 30px rgba(0, 0, 0, 0.55);
 }
 
+/* --- background theme: dusk (vertical, lighter at top) --- */
+
+body[data-board-bg="g3"] #board {
+  background: linear-gradient(180deg, var(--wood-light), var(--wood-dark) 80%);
+}
+
+/* --- background theme: amber (amber to dark maroon) --- */
+
+body[data-board-bg="g4"] #board {
+  background: linear-gradient(160deg, #a9742f, #3a1f1f 70%);
+}
+
+/* --- background theme: weave (woven crosshatch) --- */
+
+body[data-board-bg="o3"] #board {
+  background:
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.12) 0px, rgba(0, 0, 0, 0.12) 1px, transparent 1px, transparent 5px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.12) 0px, rgba(0, 0, 0, 0.12) 1px, transparent 1px, transparent 5px),
+    var(--wood-dark);
+}
+
 .corner {
   position: absolute;
   z-index: 2;
@@ -385,7 +406,8 @@ body {
 }
 
 .sound-toggle,
-.notify-toggle {
+.notify-toggle,
+.theme-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -401,7 +423,8 @@ body {
 }
 
 .sound-toggle:focus-visible,
-.notify-toggle:focus-visible {
+.notify-toggle:focus-visible,
+.theme-toggle:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
@@ -414,5 +437,9 @@ body {
 
 .sound-toggle[aria-pressed="true"] .toggle-status,
 .notify-toggle[aria-pressed="true"] .toggle-status {
+  color: var(--gold);
+}
+
+.theme-toggle .toggle-status {
   color: var(--gold);
 }

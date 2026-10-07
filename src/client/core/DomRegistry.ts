@@ -18,6 +18,9 @@ export interface PageElements {
   readonly settingsTabPanelEl: HTMLElement;
   readonly sessionListEl: HTMLUListElement;
   readonly panelToggleButtonEl: HTMLButtonElement;
+  readonly themeButtonEl: HTMLButtonElement;
+  readonly themeLabelEl: HTMLElement;
+  readonly themeStatusEl: HTMLElement;
 }
 
 export class DomRegistry {
@@ -42,6 +45,9 @@ export class DomRegistry {
       settingsTabPanelEl: document.querySelector<HTMLElement>("#settingsTabPanel"),
       sessionListEl: document.querySelector<HTMLUListElement>("#session-list"),
       panelToggleButtonEl: document.querySelector<HTMLButtonElement>("#panelToggleBtn"),
+      themeButtonEl: document.querySelector<HTMLButtonElement>("#themeBtn"),
+      themeLabelEl: document.querySelector<HTMLElement>("#themeLabel"),
+      themeStatusEl: document.querySelector<HTMLElement>("#themeStatus"),
     };
 
     for (const [name, element] of Object.entries(elements)) {

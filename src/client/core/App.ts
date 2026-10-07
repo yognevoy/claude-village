@@ -29,6 +29,9 @@ export class App {
       this.elements.notifyButtonEl,
       this.elements.notifyLabelEl,
       notifier,
+      this.elements.themeButtonEl,
+      this.elements.themeLabelEl,
+      this.elements.themeStatusEl,
     );
     new SidePanelTabs(
       this.elements.sessionsTabButtonEl,

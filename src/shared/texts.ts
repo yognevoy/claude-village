@@ -33,6 +33,11 @@ export const texts = {
     togglePanelLabel: "Toggle sessions panel",
     collapseGlyph: "«",
     expandGlyph: "»",
+    themeLabel: "BACKGROUND",
+    themeWood: "WOOD",
+    themeDusk: "DUSK",
+    themeAmber: "AMBER",
+    themeWeave: "WEAVE",
     tooltip: {
       status: {
         needsPermission: "waiting for permission",
