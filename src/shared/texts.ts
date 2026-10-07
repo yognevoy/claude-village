@@ -28,6 +28,11 @@ export const texts = {
     notificationsOff: "ALERTS OFF",
     notificationTitle: "Claude Village",
     notificationBody: (projectName: string): string => `${projectName} needs attention`,
+    sessionsTitle: "SESSIONS",
+    settingsLabel: "SETTINGS",
+    togglePanelLabel: "Toggle sessions panel",
+    collapseGlyph: "«",
+    expandGlyph: "»",
     tooltip: {
       status: {
         needsPermission: "waiting for permission",

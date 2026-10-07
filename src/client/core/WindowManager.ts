@@ -2,7 +2,7 @@ import { VillageGame } from "../game/VillageGame.js";
 import { PageBackground } from "../render/PageBackground.js";
 import { PageElements } from "./DomRegistry.js";
 
-const VIEWPORT_SIDE_MARGIN = 96;
+const VIEWPORT_SIDE_MARGIN = 420;
 const RESERVED_VERTICAL_SPACE = 170;
 
 export class WindowManager {
@@ -23,6 +23,8 @@ export class WindowManager {
       window.innerWidth - VIEWPORT_SIDE_MARGIN,
       window.innerHeight - RESERVED_VERTICAL_SPACE,
     );
-    this.elements.hudEl.style.width = `${this.elements.frameEl.getBoundingClientRect().width}px`;
+
+    const columnHeight = this.elements.gameColumnEl.getBoundingClientRect().height;
+    this.elements.sidePanelEl.style.height = `${columnHeight}px`;
   }
 }
