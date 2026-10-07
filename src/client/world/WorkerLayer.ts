@@ -1,6 +1,7 @@
 import type Phaser from "phaser";
 import { WorkerPhase } from "../../domain/workers/WorkerPhase.js";
 import type { WorkerState } from "../../domain/workers/WorkerState.js";
+import type { AlertNotifier } from "../notifications/AlertNotifier.js";
 import type { NameTagOverlay } from "./NameTagOverlay.js";
 import { WorkerPlacement } from "./WorkerPlacement.js";
 import type { WorkerPointerListener } from "./WorkerView.js";
@@ -21,6 +22,7 @@ export class WorkerLayer implements WorkerPointerListener {
     private readonly scene: Phaser.Scene,
     private readonly atlasKey: string,
     private readonly overlay: NameTagOverlay,
+    private readonly notifier: AlertNotifier,
   ) {
     this.tooltip = new WorkerTooltip(overlay.root);
   }
@@ -45,7 +47,13 @@ export class WorkerLayer implements WorkerPointerListener {
       return;
     }
 
+    const previous = this.views.get(worker.sessionId)?.currentState;
+
     this.place(worker);
+
+    if (worker.hasAlert && previous?.hasAlert !== true) {
+      this.notifier.notify(worker);
+    }
   }
 
   public refresh(nowMs: number): void {

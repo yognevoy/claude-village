@@ -24,6 +24,10 @@ export const texts = {
     resourceCounter: (label: string, value: number): string => `${label} ${value}`,
     soundOn: "SOUND ON",
     soundOff: "SOUND OFF",
+    notificationsOn: "ALERTS ON",
+    notificationsOff: "ALERTS OFF",
+    notificationTitle: "Claude Village",
+    notificationBody: (projectName: string): string => `${projectName} needs attention`,
     tooltip: {
       status: {
         needsPermission: "waiting for permission",

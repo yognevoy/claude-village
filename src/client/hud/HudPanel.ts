@@ -1,42 +1,37 @@
-import type { ResourceTotalsView } from "../net/EventStream.js";
 import type { BackgroundMusic } from "../audio/BackgroundMusic.js";
+import type { AlertNotifier } from "../notifications/AlertNotifier.js";
 import { texts } from "../../shared/texts.js";
+import { AlertToggle } from "./AlertToggle.js";
+import { ResourceCounters } from "./ResourceCounters.js";
+import { SoundToggle } from "./SoundToggle.js";
 
 export class HudPanel {
+  private readonly _counters: ResourceCounters;
+  private readonly soundToggle: SoundToggle;
+  private readonly alertToggle: AlertToggle;
+
   public constructor(
-    private readonly titleEl: HTMLElement,
-    private readonly stoneCounterEl: HTMLElement,
-    private readonly woodCounterEl: HTMLElement,
-    private readonly fishCounterEl: HTMLElement,
-    private readonly soundButtonEl: HTMLButtonElement,
-    private readonly soundLabelEl: HTMLElement,
-    private readonly music: BackgroundMusic,
+    titleEl: HTMLElement,
+    stoneCounterEl: HTMLElement,
+    woodCounterEl: HTMLElement,
+    fishCounterEl: HTMLElement,
+    soundButtonEl: HTMLButtonElement,
+    soundLabelEl: HTMLElement,
+    music: BackgroundMusic,
+    notifyButtonEl: HTMLButtonElement,
+    notifyLabelEl: HTMLElement,
+    notifier: AlertNotifier,
   ) {
-    this.titleEl.textContent = texts.client.title;
-    this.setTotals({ mine: 0, forest: 0, river: 0 });
-    this.renderSound();
-    this.soundButtonEl.addEventListener("click", () => {
-      this.toggleSound();
-    });
+    titleEl.textContent = texts.client.title;
+
+    this._counters = new ResourceCounters(stoneCounterEl, woodCounterEl, fishCounterEl);
+    this._counters.setTotals({ mine: 0, forest: 0, river: 0 });
+
+    this.soundToggle = new SoundToggle(soundButtonEl, soundLabelEl, music);
+    this.alertToggle = new AlertToggle(notifyButtonEl, notifyLabelEl, notifier);
   }
 
-  public setTotals(totals: ResourceTotalsView): void {
-    const { resourceLabel, resourceCounter } = texts.client;
-
-    this.stoneCounterEl.textContent = resourceCounter(resourceLabel.stone, totals.mine);
-    this.woodCounterEl.textContent = resourceCounter(resourceLabel.wood, totals.forest);
-    this.fishCounterEl.textContent = resourceCounter(resourceLabel.fish, totals.river);
-  }
-
-  private toggleSound(): void {
-    this.music.toggle();
-    this.renderSound();
-  }
-
-  private renderSound(): void {
-    this.soundButtonEl.setAttribute("aria-pressed", String(this.music.isOn));
-    this.soundLabelEl.textContent = this.music.isOn
-      ? texts.client.soundOn
-      : texts.client.soundOff;
+  public get counters(): ResourceCounters {
+    return this._counters;
   }
 }
