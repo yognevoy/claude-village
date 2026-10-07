@@ -5,6 +5,7 @@ import terrainImageUrl from "../../../sprites/terrain.png?url";
 import { EventStream } from "../net/EventStream.js";
 import type { HudPanel } from "../hud/HudPanel.js";
 import type { AlertNotifier } from "../notifications/AlertNotifier.js";
+import type { SessionListPanel } from "../sessions/SessionListPanel.js";
 import type { NameTagOverlay } from "../world/NameTagOverlay.js";
 import { WorkerLayer } from "../world/WorkerLayer.js";
 import { MapRenderer } from "./MapRenderer.js";
@@ -21,6 +22,7 @@ export class VillageScene extends Phaser.Scene {
     private readonly hud: HudPanel,
     private readonly overlay: NameTagOverlay,
     private readonly notifier: AlertNotifier,
+    private readonly sessionList: SessionListPanel,
   ) {
     super("village");
   }
@@ -38,8 +40,14 @@ export class VillageScene extends Phaser.Scene {
     this.workerLayer = workerLayer;
 
     this.eventStream = new EventStream("/events", {
-      onSnapshot: (workers) => workerLayer.sync(workers),
-      onDelta: (worker) => workerLayer.update(worker),
+      onSnapshot: (workers) => {
+        workerLayer.sync(workers);
+        this.sessionList.sync(workers);
+      },
+      onDelta: (worker) => {
+        workerLayer.update(worker);
+        this.sessionList.update(worker);
+      },
       onResources: (totals) => this.hud.counters.setTotals(totals),
     });
   }

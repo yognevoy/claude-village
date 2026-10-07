@@ -16,6 +16,7 @@ export interface PageElements {
   readonly settingsTabButtonEl: HTMLButtonElement;
   readonly sessionsTabPanelEl: HTMLElement;
   readonly settingsTabPanelEl: HTMLElement;
+  readonly sessionListEl: HTMLUListElement;
   readonly panelToggleButtonEl: HTMLButtonElement;
 }
 
@@ -39,6 +40,7 @@ export class DomRegistry {
       settingsTabButtonEl: document.querySelector<HTMLButtonElement>("#settingsTabBtn"),
       sessionsTabPanelEl: document.querySelector<HTMLElement>("#sessionsTabPanel"),
       settingsTabPanelEl: document.querySelector<HTMLElement>("#settingsTabPanel"),
+      sessionListEl: document.querySelector<HTMLUListElement>("#session-list"),
       panelToggleButtonEl: document.querySelector<HTMLButtonElement>("#panelToggleBtn"),
     };
 
