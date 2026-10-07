@@ -99,23 +99,23 @@ body[data-board-bg="o3"] #board {
 }
 
 .corner-tl {
-  top: 4px;
-  left: 4px;
+  top: -5px;
+  left: -5px;
 }
 
 .corner-tr {
-  top: 4px;
-  right: 4px;
+  top: -5px;
+  right: -5px;
 }
 
 .corner-bl {
-  bottom: 4px;
-  left: 4px;
+  bottom: -5px;
+  left: -5px;
 }
 
 .corner-br {
-  bottom: 4px;
-  right: 4px;
+  bottom: -5px;
+  right: -5px;
 }
 
 .board-main {
