@@ -23,6 +23,7 @@ export class VillageScene extends Phaser.Scene {
     private readonly overlay: NameTagOverlay,
     private readonly notifier: AlertNotifier,
     private readonly sessionList: SessionListPanel,
+    private readonly onReady: () => void,
   ) {
     super("village");
   }
@@ -50,6 +51,8 @@ export class VillageScene extends Phaser.Scene {
       },
       onResources: (totals) => this.hud.counters.setTotals(totals),
     });
+
+    this.onReady();
   }
 
   public update(): void {

@@ -17,8 +17,9 @@ export class VillageGame {
     hud: HudPanel,
     notifier: AlertNotifier,
     sessionList: SessionListPanel,
+    onReady: () => void,
   ) {
-    const scene = new VillageScene(hud, overlay, notifier, sessionList);
+    const scene = new VillageScene(hud, overlay, notifier, sessionList, onReady);
 
     this.game = new Phaser.Game({
       type: Phaser.AUTO,
