@@ -1,5 +1,6 @@
 import type { BackgroundMusic } from "../audio/BackgroundMusic.js";
 import type { AlertNotifier } from "../notifications/AlertNotifier.js";
+import type { ClientSettingsStore } from "../storage/ClientSettingsStore.js";
 import { texts } from "../../shared/texts.js";
 import { AlertToggle } from "./AlertToggle.js";
 import { ResourceCounters } from "./ResourceCounters.js";
@@ -26,15 +27,33 @@ export class HudPanel {
     themeButtonEl: HTMLButtonElement,
     themeLabelEl: HTMLElement,
     themeStatusEl: HTMLElement,
+    settingsStore: ClientSettingsStore,
+    initialThemeId: string,
   ) {
     titleEl.textContent = texts.client.title;
 
     this._counters = new ResourceCounters(stoneCounterEl, woodCounterEl, fishCounterEl);
     this._counters.setTotals({ mine: 0, forest: 0, river: 0 });
 
-    this.soundToggle = new SoundToggle(soundButtonEl, soundLabelEl, music);
-    this.alertToggle = new AlertToggle(notifyButtonEl, notifyLabelEl, notifier);
-    this.themePicker = new ThemePicker(themeButtonEl, themeLabelEl, themeStatusEl);
+    this.soundToggle = new SoundToggle(
+      soundButtonEl,
+      soundLabelEl,
+      music,
+      settingsStore,
+    );
+    this.alertToggle = new AlertToggle(
+      notifyButtonEl,
+      notifyLabelEl,
+      notifier,
+      settingsStore,
+    );
+    this.themePicker = new ThemePicker(
+      themeButtonEl,
+      themeLabelEl,
+      themeStatusEl,
+      settingsStore,
+      initialThemeId,
+    );
   }
 
   public get counters(): ResourceCounters {

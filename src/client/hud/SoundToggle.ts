@@ -1,4 +1,5 @@
 import type { BackgroundMusic } from "../audio/BackgroundMusic.js";
+import type { ClientSettingsStore } from "../storage/ClientSettingsStore.js";
 import { texts } from "../../shared/texts.js";
 
 export class SoundToggle {
@@ -8,6 +9,7 @@ export class SoundToggle {
     private readonly buttonEl: HTMLButtonElement,
     private readonly labelEl: HTMLElement,
     private readonly music: BackgroundMusic,
+    private readonly settingsStore: ClientSettingsStore,
   ) {
     const statusEl = buttonEl.querySelector<HTMLElement>(".toggle-status");
 
@@ -19,6 +21,7 @@ export class SoundToggle {
     this.render();
     this.buttonEl.addEventListener("click", () => {
       this.music.toggle();
+      this.settingsStore.update({ soundOn: this.music.isOn });
       this.render();
     });
   }

@@ -2,11 +2,13 @@ import trackUrl from "../assets/peaceful-theme.mp3?url";
 import { BackgroundMusic } from "../audio/BackgroundMusic.js";
 import { VillageGame } from "../game/VillageGame.js";
 import { HudPanel } from "../hud/HudPanel.js";
+import { SoundGestureHint } from "../hud/SoundGestureHint.js";
 import { AlertNotifier } from "../notifications/AlertNotifier.js";
 import { PanelCollapse } from "../panel/PanelCollapse.js";
 import { SidePanelTabs } from "../panel/SidePanelTabs.js";
 import { PageBackground } from "../render/PageBackground.js";
 import { SessionListPanel } from "../sessions/SessionListPanel.js";
+import { ClientSettingsStore } from "../storage/ClientSettingsStore.js";
 import { NameTagOverlay } from "../world/NameTagOverlay.js";
 import { PageElements } from "./DomRegistry.js";
 import { WindowManager } from "./WindowManager.js";
@@ -15,9 +17,15 @@ export class App {
   public constructor(private readonly elements: PageElements) {}
 
   public start(): void {
+    const settingsStore = new ClientSettingsStore();
+    const settings = settingsStore.get();
+
     const background = new PageBackground(this.elements.backgroundCanvasEl);
-    const music = new BackgroundMusic(trackUrl);
-    const notifier = new AlertNotifier();
+    const soundHint = new SoundGestureHint(this.elements.soundHintEl);
+    const music = new BackgroundMusic(trackUrl, settings.soundOn, (waiting) =>
+      soundHint.setVisible(waiting),
+    );
+    const notifier = new AlertNotifier(settings.alertsOn);
     const hud = new HudPanel(
       this.elements.titleEl,
       this.elements.stoneCounterEl,
@@ -32,6 +40,8 @@ export class App {
       this.elements.themeButtonEl,
       this.elements.themeLabelEl,
       this.elements.themeStatusEl,
+      settingsStore,
+      settings.themeId,
     );
     new SidePanelTabs(
       this.elements.sessionsTabButtonEl,
@@ -39,7 +49,12 @@ export class App {
       this.elements.sessionsTabPanelEl,
       this.elements.settingsTabPanelEl,
     );
-    new PanelCollapse(this.elements.sidePanelEl, this.elements.panelToggleButtonEl);
+    new PanelCollapse(
+      this.elements.sidePanelEl,
+      this.elements.panelToggleButtonEl,
+      settingsStore,
+      settings.sidebarCollapsed,
+    );
     const nameTags = new NameTagOverlay(this.elements.nameTagsEl, this.elements.gameContainerEl);
     const sessionList = new SessionListPanel(this.elements.sessionListEl);
     const game = new VillageGame(this.elements.gameContainerEl, nameTags, hud, notifier, sessionList);

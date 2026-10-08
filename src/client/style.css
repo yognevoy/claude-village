@@ -56,6 +56,52 @@ body {
   text-wrap: balance;
 }
 
+.sound-hint {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  background: var(--wood-dark);
+  box-shadow:
+    0 0 0 1px var(--mortar),
+    0 3px 10px rgba(0, 0, 0, 0.4);
+  padding: 12px 14px;
+  max-width: 300px;
+  animation: soundHintEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sound-hint[hidden] {
+  display: none;
+}
+
+.sound-hint-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  color: var(--gold);
+  margin: 0 0 5px;
+}
+
+.sound-hint-body {
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(236, 220, 184, 0.75);
+  margin: 0;
+}
+
+@keyframes soundHintEnter {
+  from {
+    transform: translate(24px, -12px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+}
+
 #board {
   position: relative;
   padding: var(--board-padding);
