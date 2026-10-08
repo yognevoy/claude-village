@@ -43,6 +43,12 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 14px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+#stage.ready {
+  opacity: 1;
 }
 
 #title {

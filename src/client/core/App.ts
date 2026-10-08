@@ -10,7 +10,9 @@ import { PageBackground } from "../render/PageBackground.js";
 import { SessionListPanel } from "../sessions/SessionListPanel.js";
 import { ClientSettingsStore } from "../storage/ClientSettingsStore.js";
 import { NameTagOverlay } from "../world/NameTagOverlay.js";
+import { Deferred } from "./Deferred.js";
 import { PageElements } from "./DomRegistry.js";
+import { StageReveal } from "./StageReveal.js";
 import { WindowManager } from "./WindowManager.js";
 
 export class App {
@@ -57,7 +59,16 @@ export class App {
     );
     const nameTags = new NameTagOverlay(this.elements.nameTagsEl, this.elements.gameContainerEl);
     const sessionList = new SessionListPanel(this.elements.sessionListEl);
-    const game = new VillageGame(this.elements.gameContainerEl, nameTags, hud, notifier, sessionList);
+    const gameReady = new Deferred<void>();
+    const game = new VillageGame(
+      this.elements.gameContainerEl,
+      nameTags,
+      hud,
+      notifier,
+      sessionList,
+      () => gameReady.resolve(),
+    );
     new WindowManager(this.elements, background, game).init();
+    new StageReveal(this.elements.stageEl).waitFor(gameReady.promise, document.fonts.ready);
   }
 }

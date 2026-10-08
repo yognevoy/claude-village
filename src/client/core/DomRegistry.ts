@@ -1,4 +1,5 @@
 export interface PageElements {
+  readonly stageEl: HTMLElement;
   readonly backgroundCanvasEl: HTMLCanvasElement;
   readonly gameContainerEl: HTMLElement;
   readonly nameTagsEl: HTMLElement;
@@ -27,6 +28,7 @@ export interface PageElements {
 export class DomRegistry {
   public bootstrap(): PageElements {
     const elements = {
+      stageEl: document.querySelector<HTMLElement>("#stage"),
       backgroundCanvasEl: document.querySelector<HTMLCanvasElement>("#background"),
       gameContainerEl: document.querySelector<HTMLElement>("#game"),
       nameTagsEl: document.querySelector<HTMLElement>("#name-tags"),
