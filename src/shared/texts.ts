@@ -23,6 +23,8 @@ export const texts = {
     },
     resourceCounter: (label: string, value: number): string => `${label} ${value}`,
     soundName: "SOUND",
+    soundGestureHintTitle: "SOUND IS ON",
+    soundGestureHintBody: "Click anywhere on the page to start the music.",
     alertsName: "ALERTS",
     on: "ON",
     off: "OFF",

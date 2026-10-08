@@ -5,6 +5,7 @@ export interface PageElements {
   readonly gameColumnEl: HTMLElement;
   readonly sidePanelEl: HTMLElement;
   readonly titleEl: HTMLElement;
+  readonly soundHintEl: HTMLElement;
   readonly stoneCounterEl: HTMLElement;
   readonly woodCounterEl: HTMLElement;
   readonly fishCounterEl: HTMLElement;
@@ -32,6 +33,7 @@ export class DomRegistry {
       gameColumnEl: document.querySelector<HTMLElement>(".game-column"),
       sidePanelEl: document.querySelector<HTMLElement>(".side-panel"),
       titleEl: document.querySelector<HTMLElement>("#title"),
+      soundHintEl: document.querySelector<HTMLElement>("#soundHint"),
       stoneCounterEl: document.querySelector<HTMLElement>("#stone-counter"),
       woodCounterEl: document.querySelector<HTMLElement>("#wood-counter"),
       fishCounterEl: document.querySelector<HTMLElement>("#fish-counter"),

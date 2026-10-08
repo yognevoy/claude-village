@@ -2,6 +2,7 @@ import trackUrl from "../assets/peaceful-theme.mp3?url";
 import { BackgroundMusic } from "../audio/BackgroundMusic.js";
 import { VillageGame } from "../game/VillageGame.js";
 import { HudPanel } from "../hud/HudPanel.js";
+import { SoundGestureHint } from "../hud/SoundGestureHint.js";
 import { AlertNotifier } from "../notifications/AlertNotifier.js";
 import { PanelCollapse } from "../panel/PanelCollapse.js";
 import { SidePanelTabs } from "../panel/SidePanelTabs.js";
@@ -20,7 +21,10 @@ export class App {
     const settings = settingsStore.get();
 
     const background = new PageBackground(this.elements.backgroundCanvasEl);
-    const music = new BackgroundMusic(trackUrl, settings.soundOn, () => undefined);
+    const soundHint = new SoundGestureHint(this.elements.soundHintEl);
+    const music = new BackgroundMusic(trackUrl, settings.soundOn, (waiting) =>
+      soundHint.setVisible(waiting),
+    );
     const notifier = new AlertNotifier(settings.alertsOn);
     const hud = new HudPanel(
       this.elements.titleEl,
