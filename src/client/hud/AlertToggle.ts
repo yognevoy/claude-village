@@ -1,4 +1,5 @@
 import type { AlertNotifier } from "../notifications/AlertNotifier.js";
+import type { ClientSettingsStore } from "../storage/ClientSettingsStore.js";
 import { texts } from "../../shared/texts.js";
 
 export class AlertToggle {
@@ -8,6 +9,7 @@ export class AlertToggle {
     private readonly buttonEl: HTMLButtonElement,
     private readonly labelEl: HTMLElement,
     private readonly notifier: AlertNotifier,
+    private readonly settingsStore: ClientSettingsStore,
   ) {
     const statusEl = buttonEl.querySelector<HTMLElement>(".toggle-status");
 
@@ -18,7 +20,10 @@ export class AlertToggle {
     this.statusEl = statusEl;
     this.render();
     this.buttonEl.addEventListener("click", () => {
-      void this.notifier.toggle().then(() => this.render());
+      void this.notifier.toggle().then(() => {
+        this.settingsStore.update({ alertsOn: this.notifier.isOn });
+        this.render();
+      });
     });
   }
 

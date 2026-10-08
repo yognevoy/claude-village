@@ -4,7 +4,12 @@ import { texts } from "../../shared/texts.js";
 type AlertWorker = Pick<WorkerState, "projectName">;
 
 export class AlertNotifier {
-  private enabled = false;
+  private enabled: boolean;
+
+  public constructor(initialOn: boolean) {
+    this.enabled =
+      initialOn && this.isSupported && Notification.permission === "granted";
+  }
 
   public get isOn(): boolean {
     return this.enabled;
